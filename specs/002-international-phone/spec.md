@@ -17,7 +17,7 @@ Dental office staff need to register and manage US patients with properly format
 
 **Acceptance Scenarios**:
 
-1. **Given** a staff member is adding a new US patient, **When** they enter a phone number like "555-123-4567" or "(555) 123-4567", **Then** the system accepts and formats it as "+1 (555) 123-4567"
+1. **Given** a staff member selects +1 country code and enters a 10-digit US number like "5551234567", **When** they save the patient record, **Then** the system accepts and formats it as "+1 (555) 123-4567"
 2. **Given** a staff member enters a US phone number with country code like "+1 555 123 4567", **When** they save the patient record, **Then** the system properly validates and formats the number
 3. **Given** a patient record displays in the arrivals view, **When** staff view the phone number, **Then** it shows in a consistent, readable US format
 
@@ -33,47 +33,48 @@ Dental office staff need to register and manage Mexican patients with properly f
 
 **Acceptance Scenarios**:
 
-1. **Given** a staff member is adding a new Mexican patient, **When** they enter a phone number like "55 1234 5678" (Mexico City format), **Then** the system accepts and formats it as "+52 55 1234 5678"
-2. **Given** a staff member enters a Mexican mobile number like "1 55 1234 5678", **When** they save the patient record, **Then** the system properly validates the 10-digit mobile format
+1. **Given** a staff member selects +52 country code and enters a 10-digit Mexican number like "5512345678", **When** they save the patient record, **Then** the system accepts and formats it as "+52 (551) 234-5678"
+2. **Given** a staff member enters a Mexican number with incorrect length or format, **When** they attempt to save, **Then** the system rejects the entry with a clear validation error
 3. **Given** a patient record displays in the system, **When** staff view the Mexican phone number, **Then** it shows in proper Mexican format with country code
 
 ---
 
-### User Story 3 - Country Detection and Validation (Priority: P3)
+### User Story 3 - Country Code Selection and Strict Validation (Priority: P3)
 
-The system automatically detects phone number country codes and applies appropriate validation rules to prevent data entry errors and ensure compliance.
+The system requires explicit country code selection via dropdown and applies strict 10-digit validation to ensure data quality and prevent entry errors.
 
-**Why this priority**: Improves data quality and user experience by reducing manual formatting and preventing invalid entries.
+**Why this priority**: Prevents ambiguous phone numbers and ensures all entries meet exact formatting requirements.
 
-**Independent Test**: Can be tested by entering various phone number formats and verifying automatic country detection works correctly.
+**Independent Test**: Can be tested by using the country code dropdown and verifying strict 10-digit validation works correctly.
 
 **Acceptance Scenarios**:
 
-1. **Given** a user enters a phone number without country code, **When** the number starts with standard US patterns, **Then** the system defaults to US (+1) formatting
-2. **Given** a user enters a phone number with +52 prefix, **When** they save the record, **Then** the system validates against Mexican phone number rules
-3. **Given** an invalid phone number is entered, **When** the user attempts to save, **Then** the system displays clear validation error messages
+1. **Given** a user is entering a phone number, **When** they access the phone field, **Then** the system displays a dropdown with +1 (US) and +52 (Mexico) options
+2. **Given** a user selects a country code and enters a number with incorrect length, **When** they attempt to save, **Then** the system displays validation error requiring exactly 10 digits
+3. **Given** a user enters a valid 10-digit number with country code selected, **When** they save the record, **Then** the system formats it as "+{code} (xxx) xxx-xxxx"
 
 ---
 
 ### Edge Cases
 
-- What happens when user enters a phone number with mixed formatting (spaces, dashes, parentheses)?
-- How does system handle phone numbers that don't match US or Mexican patterns?
-- What happens when user enters an incomplete phone number?
-- How does system behave when switching between US and Mexican number formats for the same patient?
+- What happens when user enters a phone number with mixed formatting (spaces, dashes, parentheses) - should system strip formatting or reject?
+- How does system handle phone numbers that are not exactly 10 digits?
+- What happens when user tries to save without selecting a country code?
+- How does system behave when switching between +1 and +52 country codes for the same number?
+- What happens when user enters letters or special characters in the phone number field?
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST accept US phone numbers in multiple input formats (e.g., "555-123-4567", "(555) 123-4567", "5551234567")
-- **FR-002**: System MUST accept Mexican phone numbers with proper validation for both landline (8 digits + area code) and mobile (10 digits) formats
-- **FR-003**: System MUST automatically detect country code from phone number input when possible
-- **FR-004**: System MUST format and display phone numbers consistently according to country standards
-- **FR-005**: System MUST validate phone number length and format according to US and Mexican telecommunications standards
+- **FR-001**: System MUST require country code selection via dropdown (+1 for US, +52 for Mexico) before phone number entry
+- **FR-002**: System MUST accept ONLY 10-digit phone numbers for both US and Mexican formats
+- **FR-003**: System MUST reject any phone number that is not exactly 10 digits in length
+- **FR-004**: System MUST format and display all phone numbers as "+{country_code} (xxx) xxx-xxxx"
+- **FR-005**: System MUST validate that Mexican numbers are current 10-digit format (no legacy 8-digit or 044 prefix support)
 - **FR-006**: System MUST preserve existing phone number data and functionality for numbers without country codes
-- **FR-007**: Users MUST be able to manually specify country code when automatic detection is unclear
-- **FR-008**: System MUST provide clear validation error messages for invalid phone number formats
+- **FR-007**: System MUST NOT allow partial phone number entries to be saved
+- **FR-008**: System MUST provide clear validation error messages specifying exactly 10 digits are required
 
 ### Key Entities
 

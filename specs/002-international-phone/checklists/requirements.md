@@ -32,6 +32,10 @@
 ## Notes
 
 - All checklist items pass validation
+- **CLARIFICATIONS ADDRESSED**:
+  - Mexican phone numbers: Current 10-digit format only, no legacy 044 support, all numbers must have +52
+  - Input validation: Strict 10-digit requirement, dropdown for country code selection (+1/+52), no partial saves allowed
+  - Display format: Standardized as "+{country_code} (xxx) xxx-xxxx" for all numbers
 - Specification is complete and ready for planning phase
-- No clarifications needed - all requirements are clear and testable
+- No additional clarifications needed - all requirements are clear and testable
 - Scope is well-bounded with clear in/out of scope definitions
