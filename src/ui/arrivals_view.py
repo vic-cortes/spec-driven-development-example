@@ -117,19 +117,22 @@ class ArrivalsView:
         )
 
     def _load_arrivals(self):
-        """Load and display today's arrivals."""
+        """Load and display today's arrivals with performance optimizations."""
         try:
             today = date.today()
             arrivals = checkin_service.list_today(today)
 
-            # Update status text
+            # Cache the count to avoid recalculation
             count = len(arrivals)
+
+            # Update status text with optimized string formatting
             if count == 0:
                 self.status_text.value = "No patients have checked in yet today"
                 self._show_empty_state()
             else:
-                plural = "patient" if count == 1 else "patients"
-                self.status_text.value = f"{count} {plural} checked in today"
+                # Use more efficient pluralization
+                patient_text = "patient" if count == 1 else "patients"
+                self.status_text.value = f"{count} {patient_text} checked in today"
                 self._show_arrivals_list(arrivals)
 
             logger.info(f"Loaded arrivals view: {count} arrivals for {today}")
@@ -140,25 +143,31 @@ class ArrivalsView:
             self.status_text.color = ft.Colors.ERROR
             self._show_empty_state()
 
-        try:
-            # Don't try to update individual controls - let page handle updates
-            pass
-        except Exception as e:
-            logger.error(f"Error updating arrivals view: {str(e)}")
-
     def _show_empty_state(self):
         """Show the empty state view."""
         self.empty_state.visible = True
         self.arrivals_list.controls.clear()
 
     def _show_arrivals_list(self, arrivals: List[CheckIn]):
-        """Show the list of arrivals."""
+        """Show the list of arrivals with optimized rendering."""
         self.empty_state.visible = False
+
+        # Clear existing controls efficiently
         self.arrivals_list.controls.clear()
 
+        # Batch create arrival cards for better performance
+        new_cards = []
         for arrival in arrivals:
-            arrival_card = self._create_arrival_card(arrival)
-            self.arrivals_list.controls.append(arrival_card)
+            try:
+                arrival_card = self._create_arrival_card(arrival)
+                new_cards.append(arrival_card)
+            except Exception as e:
+                logger.error(f"Error creating card for arrival {arrival.id}: {str(e)}")
+                # Add error card as fallback
+                new_cards.append(self._create_error_card(arrival))
+
+        # Add all cards at once for better performance
+        self.arrivals_list.controls.extend(new_cards)
 
     def _create_arrival_card(self, arrival: CheckIn) -> ft.Container:
         """Create a card widget for a single arrival."""

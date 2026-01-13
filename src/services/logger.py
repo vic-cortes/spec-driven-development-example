@@ -47,24 +47,89 @@ def mask_pii_data(data: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Dictionary with PII fields masked
     """
-    sensitive_fields = {"phone", "email", "address", "birth_date", "notes"}
+    # Expanded list of sensitive fields
+    sensitive_fields = {
+        "phone",
+        "email",
+        "address",
+        "birth_date",
+        "notes",
+        "ssn",
+        "social_security",
+        "patient_id",
+        "id",
+        "first_name",
+        "last_name",
+        "name",
+        "full_name",
+        "street",
+        "city",
+        "zip",
+        "zipcode",
+        "postal_code",
+    }
+
     masked_data = {}
 
     for key, value in data.items():
-        if key.lower() in sensitive_fields:
-            if key.lower() == "phone" and isinstance(value, str):
-                if len(value) >= 4:
-                    masked_data[key] = "***" + value[-4:]
+        if value is None:
+            masked_data[key] = None
+            continue
+
+        key_lower = key.lower()
+
+        if key_lower in sensitive_fields:
+            if key_lower == "phone" and isinstance(value, str):
+                # Enhanced phone masking
+                cleaned_phone = re.sub(r"[^\d]", "", value)
+                if len(cleaned_phone) >= 4:
+                    masked_data[key] = "***" + cleaned_phone[-4:]
+                elif len(cleaned_phone) > 0:
+                    masked_data[key] = "***" + cleaned_phone
                 else:
-                    masked_data[key] = "***" + value
-            elif key.lower() == "email" and isinstance(value, str) and "@" in value:
+                    masked_data[key] = "***"
+            elif key_lower == "email" and isinstance(value, str) and "@" in value:
+                # Enhanced email masking
                 username, domain = value.split("@", 1)
-                masked_username = username[:2] + "***" if len(username) > 2 else "***"
+                if len(username) > 3:
+                    masked_username = username[:1] + "***" + username[-1:]
+                elif len(username) > 1:
+                    masked_username = username[:1] + "***"
+                else:
+                    masked_username = "***"
                 masked_data[key] = f"{masked_username}@{domain}"
+            elif key_lower in {
+                "first_name",
+                "last_name",
+                "name",
+                "full_name",
+            } and isinstance(value, str):
+                # Mask names partially for debugging while preserving privacy
+                if len(value) > 2:
+                    masked_data[key] = value[:1] + "***" + value[-1:]
+                elif len(value) > 0:
+                    masked_data[key] = value[:1] + "***"
+                else:
+                    masked_data[key] = "***"
+            elif key_lower == "id" and isinstance(value, str):
+                # Mask IDs but keep enough for debugging
+                if len(value) > 8:
+                    masked_data[key] = value[:4] + "***" + value[-4:]
+                elif len(value) > 4:
+                    masked_data[key] = value[:2] + "***" + value[-2:]
+                else:
+                    masked_data[key] = "***" + value[-2:] if len(value) > 2 else "***"
             else:
+                # Generic masking for other sensitive fields
                 masked_data[key] = "***MASKED***"
         else:
-            masked_data[key] = value
+            # Non-sensitive fields pass through but check for embedded PII
+            if isinstance(value, str):
+                masked_data[key] = mask_phone(
+                    value
+                )  # Check for phone numbers in any string
+            else:
+                masked_data[key] = value
 
     return masked_data
 
@@ -83,11 +148,77 @@ class PrivacySafeFormatter(logging.Formatter):
             for arg in record.args:
                 if isinstance(arg, str):
                     masked_args.append(mask_phone(arg))
+                elif isinstance(arg, dict):
+                    # Handle dictionary arguments that might contain PII
+                    masked_args.append(mask_pii_data(arg))
                 else:
                     masked_args.append(arg)
             record.args = tuple(masked_args)
 
         return super().format(record)
+
+
+def sanitize_log_message(message: str) -> str:
+    """
+    Sanitize a log message to remove any potential PII.
+
+    Args:
+        message: The log message to sanitize
+
+    Returns:
+        Sanitized message with PII masked
+    """
+    if not isinstance(message, str):
+        return str(message)
+
+    # Apply phone masking
+    sanitized = mask_phone(message)
+
+    # Additional patterns for common PII that might slip through
+    pii_patterns = [
+        (
+            r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
+            "[EMAIL]",
+        ),  # Email addresses
+        (r"\b\d{3}-?\d{2}-?\d{4}\b", "[SSN]"),  # SSN patterns
+        (
+            r"\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b",
+            "[CARD]",
+        ),  # Credit card patterns
+    ]
+
+    for pattern, replacement in pii_patterns:
+        sanitized = re.sub(pattern, replacement, sanitized, flags=re.IGNORECASE)
+
+    return sanitized
+
+
+def create_audit_log_entry(
+    action: str, user_id: str, details: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Create a privacy-safe audit log entry.
+
+    Args:
+        action: The action being performed
+        user_id: ID of the user performing the action (masked)
+        details: Additional details about the action
+
+    Returns:
+        Audit log entry with all PII properly masked
+    """
+    import datetime
+
+    audit_entry = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "action": action,
+        "user_id": user_id[:4] + "***" if len(user_id) > 4 else "***",
+        "details": (
+            mask_pii_data(details) if isinstance(details, dict) else str(details)
+        ),
+    }
+
+    return audit_entry
 
 
 def setup_privacy_safe_logger(name: str = "dental_checkin") -> logging.Logger:

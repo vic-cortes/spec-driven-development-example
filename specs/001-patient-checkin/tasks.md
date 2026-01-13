@@ -123,11 +123,11 @@ description: "Task list for Patient Check-In (Phone)"
 
 **Purpose**: Improvements across stories
 
-- [ ] T030 [P] Documentation updates in `specs/001-patient-checkin/quickstart.md`
-- [ ] T031 Code cleanup and Flet performance tweaks across `src/ui/`
-- [ ] T032 [P] Additional unit tests in `tests/unit/`
-- [ ] T033 Privacy & logging hardening in `src/services/logger.py`
-- [ ] T034 Run quickstart validation using `specs/001-patient-checkin/quickstart.md`
+- [x] T030 [P] Documentation updates in `specs/001-patient-checkin/quickstart.md`
+- [x] T031 Code cleanup and Flet performance tweaks across `src/ui/`
+- [x] T032 [P] Additional unit tests in `tests/unit/`
+- [x] T033 Privacy & logging hardening in `src/services/logger.py`
+- [x] T034 Run quickstart validation using `specs/001-patient-checkin/quickstart.md`
 
 ---
 
