@@ -4,7 +4,6 @@ from typing import Callable, List, Optional
 
 import flet as ft
 
-from src.models.checkin import CheckIn
 from src.models.patient import Patient
 from src.services.checkin_service import checkin_service
 from src.services.logger import logger
@@ -12,7 +11,7 @@ from src.services.patient_service import patient_service
 from src.utils.phone import format_phone_display, is_valid_phone, normalize_phone
 
 
-class CheckInView(ft.UserControl):
+class CheckInView(ft.Control):
     """Check-in screen for patient arrival registration."""
 
     def __init__(self, on_checkin_complete: Optional[Callable] = None):
