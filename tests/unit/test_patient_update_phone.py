@@ -69,8 +69,8 @@ class TestPatientUpdatePhone:
 
     def test_update_patient_phone_validation(self, patient_service, sample_patient):
         """Test that phone validation works during updates."""
-        # Invalid phone should raise ValueError
-        with pytest.raises(ValueError, match="Invalid phone number"):
+        # Invalid phone should raise ValueError (from Patient model validation)
+        with pytest.raises(ValueError, match="Phone must contain only digits"):
             updated_patient = Patient(
                 id=sample_patient.id,
                 first_name=sample_patient.first_name,
@@ -79,8 +79,8 @@ class TestPatientUpdatePhone:
             )
             patient_service.update_patient(updated_patient)
 
-        # Empty phone should raise ValueError
-        with pytest.raises(ValueError, match="Invalid phone number"):
+        # Empty phone should raise ValueError (from Patient model validation)
+        with pytest.raises(ValueError, match="Phone must be at least 8 digits"):
             updated_patient = Patient(
                 id=sample_patient.id,
                 first_name=sample_patient.first_name,
@@ -118,9 +118,9 @@ class TestPatientUpdatePhone:
             id="nonexistent-001", first_name="John", last_name="Doe", phone="5559876543"
         )
 
-        # Update should still work (the store implementation may handle this differently)
-        # But we'll test that the validation still works
-        patient_service.update_patient(nonexistent_patient)
+        # Update should raise ValueError for nonexistent patient
+        with pytest.raises(ValueError, match="Patient nonexistent-001 not found"):
+            patient_service.update_patient(nonexistent_patient)
 
     def test_update_patient_preserves_other_data(self, patient_service, sample_patient):
         """Test that updating phone preserves other patient data."""

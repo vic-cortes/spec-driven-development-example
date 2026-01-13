@@ -238,8 +238,8 @@ class ArrivalsView:
                 border_radius=8,
                 padding=ft.Padding(15, 12, 15, 12),
                 margin=ft.margin.only(bottom=8),
-                # Add hover effect
-                animate=ft.animation.Animation(150, ft.AnimationCurve.EASE_IN_OUT),
+                # Add hover effect with correct animation reference
+                animate=ft.Animation(150, ft.AnimationCurve.EASE_IN_OUT),
             )
 
         except Exception as e:
@@ -300,6 +300,8 @@ class ArrivalsView:
 
         except Exception as e:
             logger.error(f"Error handling patient update: {str(e)}")
+
+    def _on_refresh_click(self, e):
         """Handle refresh button click."""
         self._load_arrivals()
 

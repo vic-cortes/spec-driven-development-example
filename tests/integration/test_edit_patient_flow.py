@@ -76,7 +76,7 @@ class TestEditPatientFlow:
     ):
         """Test editing a patient who has check-in history."""
         # Step 1: Patient checks in
-        checkin = checkin_service.checkin_patient(existing_patient.id)
+        checkin = checkin_service.check_in_patient(existing_patient.id)
         assert checkin is not None
 
         # Step 2: Edit the patient's phone
@@ -96,7 +96,7 @@ class TestEditPatientFlow:
 
         # Step 4: Verify check-in history is preserved
         # (In a real system, we'd verify the check-in still references the correct patient)
-        todays_checkins = checkin_service.list_today_checkins()
+        todays_checkins = checkin_service.list_today()
         assert len(todays_checkins) == 1
         assert todays_checkins[0].patient_id == existing_patient.id
 
@@ -149,7 +149,7 @@ class TestEditPatientFlow:
             patient_service.update_patient(invalid_patient)
 
         # Test invalid phone
-        with pytest.raises(ValueError, match="Invalid phone number"):
+        with pytest.raises(ValueError, match="Phone must contain only digits"):
             invalid_patient = Patient(
                 id=existing_patient.id,
                 first_name="Jane",
