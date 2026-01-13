@@ -17,9 +17,9 @@
 
 **Purpose**: Project initialization and international phone support infrastructure
 
-- [ ] T001 Create PhoneNumber entity in src/models/phone_number.py
-- [ ] T002 Create PhoneValidationService in src/services/phone_service.py
-- [ ] T003 [P] Create database migration script for country_code column
+- [x] T001 Create PhoneNumber entity in src/models/phone_number.py
+- [x] T002 Create PhoneValidationService in src/services/phone_service.py
+- [x] T003 [P] Create database migration script for country_code column
 
 ---
 
