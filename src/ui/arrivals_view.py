@@ -10,6 +10,7 @@ from src.models.patient import Patient
 from src.services.checkin_service import checkin_service
 from src.services.logger import logger, mask_pii_data
 from src.services.patient_service import patient_service
+from src.ui.patient_edit_view import show_patient_edit_dialog
 from src.utils.phone import format_phone_display
 
 
@@ -170,21 +171,79 @@ class ArrivalsView:
                 logger.error(f"Patient not found for arrival: {arrival.patient_id}")
                 return self._create_error_card(arrival)
 
-            logger.info("Patient found, creating simple card...")
+            logger.info("Patient found, creating detailed card...")
 
-            # Create a very simple card to test
-            simple_text = f"{patient.first_name} {patient.last_name} - {arrival.timestamp.strftime('%I:%M %p')}"
+            # Format time
+            arrival_time = arrival.timestamp.strftime("%I:%M %p")
+
+            # Create edit button
+            edit_button = ft.IconButton(
+                icon=ft.Icons.EDIT,
+                tooltip="Edit Patient",
+                icon_size=18,
+                on_click=lambda e, p=patient: self._handle_edit_patient(p),
+            )
+
+            # Patient info section
+            patient_info = ft.Column(
+                [
+                    ft.Row(
+                        [
+                            ft.Text(
+                                patient.full_name,
+                                size=16,
+                                weight=ft.FontWeight.BOLD,
+                                color=ft.Colors.BLUE_800,
+                                expand=True,
+                            ),
+                            edit_button,
+                        ],
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    ),
+                    ft.Row(
+                        [
+                            ft.Icon(
+                                ft.Icons.PHONE, size=16, color=ft.Colors.BLUE_GREY_600
+                            ),
+                            ft.Text(
+                                patient.masked_phone,
+                                size=14,
+                                color=ft.Colors.BLUE_GREY_600,
+                            ),
+                        ],
+                        spacing=5,
+                    ),
+                    ft.Row(
+                        [
+                            ft.Icon(
+                                ft.Icons.ACCESS_TIME, size=16, color=ft.Colors.GREEN_600
+                            ),
+                            ft.Text(
+                                f"Checked in at {arrival_time}",
+                                size=14,
+                                color=ft.Colors.GREEN_600,
+                            ),
+                        ],
+                        spacing=5,
+                    ),
+                ],
+                spacing=4,
+                tight=True,
+            )
 
             return ft.Container(
-                content=ft.Text(simple_text),
-                bgcolor=ft.Colors.BLUE_GREY_100,
+                content=patient_info,
+                bgcolor=ft.Colors.WHITE,
+                border=ft.border.all(1, ft.Colors.BLUE_GREY_200),
                 border_radius=8,
-                padding=10,
-                margin=ft.margin.only(bottom=5),
+                padding=ft.Padding(15, 12, 15, 12),
+                margin=ft.margin.only(bottom=8),
+                # Add hover effect
+                animate=ft.animation.Animation(150, ft.AnimationCurve.EASE_IN_OUT),
             )
 
         except Exception as e:
-            logger.error(f"Error creating arrival card at step: {str(e)}")
+            logger.error(f"Error creating arrival card: {str(e)}")
             import traceback
 
             logger.error(f"Full traceback: {traceback.format_exc()}")
@@ -209,7 +268,38 @@ class ArrivalsView:
             margin=ft.margin.only(bottom=5),
         )
 
-    def _on_refresh_click(self, e):
+    def _handle_edit_patient(self, patient: Patient):
+        """Handle edit patient button click."""
+        try:
+            logger.info(f"Opening edit dialog for patient: {patient.masked_phone}")
+
+            # Check if we have a page reference
+            if not hasattr(self, "page") or not self.page:
+                logger.error("No page reference available for patient edit dialog")
+                return
+
+            # Show edit dialog
+            show_patient_edit_dialog(
+                patient=patient, page=self.page, on_save=self._handle_patient_updated
+            )
+
+        except Exception as e:
+            logger.error(f"Error opening patient edit dialog: {str(e)}")
+
+    def _handle_patient_updated(self, updated_patient: Patient):
+        """Handle successful patient update."""
+        try:
+            logger.info(f"Patient updated: {updated_patient.masked_phone}")
+
+            # Refresh the arrivals view to show updated information
+            self._load_arrivals()
+
+            # Update the page
+            if hasattr(self, "page") and self.page:
+                self.page.update()
+
+        except Exception as e:
+            logger.error(f"Error handling patient update: {str(e)}")
         """Handle refresh button click."""
         self._load_arrivals()
 

@@ -106,16 +106,16 @@ description: "Task list for Patient Check-In (Phone)"
 
 ### Tests for User Story 3 (write FIRST)
 
-- [ ] T025 [P] [US3] Unit test: update patient phone affects lookup in `tests/unit/test_patient_update_phone.py`
-- [ ] T026 [P] [US3] Integration test: edit patient flow in `tests/integration/test_edit_patient_flow.py`
+- [x] T025 [P] [US3] Unit test: update patient phone affects lookup in `tests/unit/test_patient_update_phone.py`
+- [x] T026 [P] [US3] Integration test: edit patient flow in `tests/integration/test_edit_patient_flow.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement patient edit view in `src/ui/patient_edit_view.py`
-- [ ] T028 [US3] Implement update/validation in `src/services/patient_service.py`
-- [ ] T029 [US3] Implement merge-first duplicate resolution in `src/services/patient_service.py`
+- [x] T027 [P] [US3] Implement patient edit view in `src/ui/patient_edit_view.py`
+- [x] T028 [US3] Implement update/validation in `src/services/patient_service.py`
+- [x] T029 [US3] Implement merge-first duplicate resolution in `src/services/patient_service.py`
 
-**Checkpoint**: All user stories independently functional
+**Checkpoint**: All user stories independently functional ✅ COMPLETED
 
 ---
 

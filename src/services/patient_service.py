@@ -134,6 +134,69 @@ class PatientService:
             logger.error(f"Phone search failed: {str(e)}")
             raise
 
+    def find_potential_duplicates(
+        self, phone: str, exclude_patient_id: str = None
+    ) -> List[Patient]:
+        """
+        Find patients with the same phone number (potential duplicates).
+
+        Args:
+            phone: Phone number to check for duplicates
+            exclude_patient_id: Patient ID to exclude from results (for updates)
+
+        Returns:
+            List of patients with matching phone numbers
+        """
+        if not is_valid_phone(phone):
+            return []
+
+        normalized = normalize_phone(phone)
+        patients = self._store.find_patients_by_phone(normalized)
+
+        if exclude_patient_id:
+            patients = [p for p in patients if p.id != exclude_patient_id]
+
+        return patients
+
+    def update_patient_with_duplicate_check(
+        self, patient: Patient
+    ) -> Tuple[Patient, List[Patient]]:
+        """
+        Update a patient and return any potential duplicates found.
+
+        Args:
+            patient: Updated patient object
+
+        Returns:
+            Tuple of (updated_patient, potential_duplicates)
+
+        Raises:
+            ValueError: If patient not found or validation fails
+        """
+        # First validate the update
+        if not patient.first_name.strip():
+            raise ValueError("First name is required")
+        if not patient.last_name.strip():
+            raise ValueError("Last name is required")
+        if not is_valid_phone(patient.phone):
+            raise ValueError("Invalid phone number")
+
+        # Check for potential duplicates before updating
+        potential_duplicates = self.find_potential_duplicates(
+            patient.phone, exclude_patient_id=patient.id
+        )
+
+        # Update the patient
+        self.update_patient(patient)
+
+        # Log potential duplicates if found
+        if potential_duplicates:
+            logger.warning(
+                f"Patient update created potential duplicates: {len(potential_duplicates)} patients with same phone"
+            )
+
+        return patient, potential_duplicates
+
     def merge_duplicate_patients(
         self, primary_patient_id: str, duplicate_patient_id: str
     ) -> bool:
@@ -153,6 +216,9 @@ class PatientService:
         if not primary or not duplicate:
             raise ValueError("One or both patients not found")
 
+        if primary.id == duplicate.id:
+            raise ValueError("Cannot merge patient with itself")
+
         # Check if duplicate has any check-ins (merge policy: don't delete if has history)
         # This is a simplified check - in Phase 3 we don't have the full check-in history check
         # Will be enhanced in later phases
@@ -169,14 +235,81 @@ class PatientService:
             )
             return False
 
+        # Merge strategy: keep primary, enhance with any missing data from duplicate
+        merged_data_updated = False
+        updated_primary = Patient(
+            id=primary.id,
+            first_name=primary.first_name,
+            last_name=primary.last_name,
+            phone=primary.phone,
+            email=primary.email or duplicate.email,
+            birth_date=primary.birth_date or duplicate.birth_date,
+            address=primary.address or duplicate.address,
+            notes=self._merge_notes(primary.notes, duplicate.notes),
+        )
+
+        # Check if any data was merged
+        if (
+            updated_primary.email != primary.email
+            or updated_primary.birth_date != primary.birth_date
+            or updated_primary.address != primary.address
+            or updated_primary.notes != primary.notes
+        ):
+            merged_data_updated = True
+            self.update_patient(updated_primary)
+
         # Delete the duplicate (simple case)
         success = self._store.delete_patient(duplicate_patient_id)
         if success:
+            merge_details = (
+                "with data merge" if merged_data_updated else "simple deletion"
+            )
             logger.info(
-                f"Merged duplicate patient {duplicate_patient_id} into {primary_patient_id}"
+                f"Merged duplicate patient {duplicate_patient_id} into {primary_patient_id} ({merge_details})"
             )
 
         return success
+
+    def _merge_notes(self, primary_notes: str, duplicate_notes: str) -> str:
+        """
+        Merge notes from two patient records.
+
+        Args:
+            primary_notes: Notes from primary patient
+            duplicate_notes: Notes from duplicate patient
+
+        Returns:
+            Merged notes string
+        """
+        if not primary_notes and not duplicate_notes:
+            return None
+
+        if not primary_notes:
+            return duplicate_notes
+
+        if not duplicate_notes:
+            return primary_notes
+
+        # Both have notes - merge them
+        return f"{primary_notes}\n\n[Merged from duplicate record]\n{duplicate_notes}"
+
+    def suggest_merge_candidates(self, patient_id: str) -> List[Patient]:
+        """
+        Suggest potential merge candidates for a patient based on phone number.
+
+        Args:
+            patient_id: ID of patient to find merge candidates for
+
+        Returns:
+            List of potential duplicate patients
+        """
+        patient = self.get_patient(patient_id)
+        if not patient:
+            return []
+
+        return self.find_potential_duplicates(
+            patient.phone, exclude_patient_id=patient_id
+        )
 
 
 # Global service instance
