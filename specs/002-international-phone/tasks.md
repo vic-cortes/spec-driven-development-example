@@ -29,11 +29,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Enhance existing phone utilities in src/utils/phone.py with international validation
-- [ ] T005 [P] Create unit tests for phone validation in tests/unit/test_phone_validation.py
-- [ ] T006 [P] Create unit tests for phone service in tests/unit/test_phone_service.py
-- [ ] T007 Execute database migration to add country_code field to patients table
-- [ ] T008 Update Patient model in src/models/patient.py with country_code field and formatted_phone property
+- [x] T004 Enhance existing phone utilities in src/utils/phone.py with international validation
+- [x] T005 [P] Create unit tests for phone validation in tests/unit/test_phone_validation.py
+- [x] T006 [P] Create unit tests for phone service in tests/unit/test_phone_service.py
+- [x] T007 Execute database migration to add country_code field to patients table
+- [x] T008 Update Patient model in src/models/patient.py with country_code field and formatted_phone property
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
