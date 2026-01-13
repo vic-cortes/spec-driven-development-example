@@ -1,0 +1,139 @@
+{
+  "title": "Patient Service Contract",
+  "description": "Enhanced patient service with international phone number support",
+  "version": "2.0.0",
+  "services": {
+    "PatientService": {
+      "description": "Patient management service with international phone support",
+      "methods": {
+        "create_patient": {
+          "description": "Creates a new patient with international phone number",
+          "parameters": {
+            "first_name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Patient first name"
+            },
+            "last_name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Patient last name"
+            },
+            "country_code": {
+              "type": "string",
+              "enum": ["+1", "+52"],
+              "description": "Phone number country code"
+            },
+            "phone_digits": {
+              "type": "string",
+              "pattern": "^[0-9]{10}$",
+              "description": "Phone number (10 digits)"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "Optional email address"
+            }
+          },
+          "returns": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Generated patient ID"
+              },
+              "formatted_phone": {
+                "type": "string",
+                "description": "Formatted international phone number"
+              }
+            }
+          },
+          "errors": ["InvalidPhoneNumberError", "DuplicatePhoneError"]
+        },
+        "update_patient_phone": {
+          "description": "Updates a patient's phone number with validation",
+          "parameters": {
+            "patient_id": {
+              "type": "string",
+              "description": "Patient identifier"
+            },
+            "country_code": {
+              "type": "string",
+              "enum": ["+1", "+52"]
+            },
+            "phone_digits": {
+              "type": "string",
+              "pattern": "^[0-9]{10}$"
+            }
+          },
+          "returns": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "updated_patient": {
+                "$ref": "#/definitions/Patient"
+              }
+            }
+          }
+        },
+        "find_by_phone": {
+          "description": "Finds patients by phone number and country code",
+          "parameters": {
+            "country_code": {
+              "type": "string",
+              "enum": ["+1", "+52"]
+            },
+            "phone_digits": {
+              "type": "string",
+              "pattern": "^[0-9]{10}$"
+            }
+          },
+          "returns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Patient"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Patient": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Normalized 10-digit phone number"
+        },
+        "country_code": {
+          "type": "string",
+          "enum": ["+1", "+52"]
+        },
+        "formatted_phone": {
+          "type": "string",
+          "description": "Display formatted phone with country code"
+        },
+        "masked_phone": {
+          "type": "string",
+          "description": "Privacy-safe masked phone display"
+        },
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "first_name", "last_name", "phone", "country_code"]
+    }
+  }
+}

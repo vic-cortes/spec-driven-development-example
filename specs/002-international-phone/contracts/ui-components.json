@@ -1,0 +1,150 @@
+{
+  "title": "UI Component Contracts",
+  "description": "Flet UI component interfaces for international phone input and display",
+  "version": "1.0.0",
+  "components": {
+    "InternationalPhoneInput": {
+      "description": "Composite Flet component for country code and phone number input",
+      "properties": {
+        "country_code": {
+          "type": "string",
+          "enum": ["+1", "+52"],
+          "default": "+1",
+          "description": "Selected country code"
+        },
+        "phone_value": {
+          "type": "string",
+          "description": "Phone number input value (user typing)"
+        },
+        "is_valid": {
+          "type": "boolean",
+          "description": "Whether current input is valid"
+        },
+        "error_text": {
+          "type": "string",
+          "description": "Validation error message"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "events": {
+        "on_country_change": {
+          "description": "Fired when country code dropdown changes",
+          "parameters": {
+            "country_code": {
+              "type": "string"
+            }
+          }
+        },
+        "on_phone_change": {
+          "description": "Fired when phone number input changes",
+          "parameters": {
+            "phone_value": {
+              "type": "string"
+            },
+            "is_valid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "on_validation_error": {
+          "description": "Fired when validation fails",
+          "parameters": {
+            "error_message": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "methods": {
+        "set_value": {
+          "description": "Programmatically set phone number",
+          "parameters": {
+            "country_code": {
+              "type": "string"
+            },
+            "phone_digits": {
+              "type": "string"
+            }
+          }
+        },
+        "clear": {
+          "description": "Clear all input values"
+        },
+        "validate": {
+          "description": "Trigger validation of current input",
+          "returns": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "PhoneDisplayText": {
+      "description": "Read-only component for displaying formatted phone numbers",
+      "properties": {
+        "country_code": {
+          "type": "string",
+          "enum": ["+1", "+52"]
+        },
+        "phone_digits": {
+          "type": "string"
+        },
+        "format_type": {
+          "type": "string",
+          "enum": ["full", "masked"],
+          "default": "full"
+        },
+        "display_text": {
+          "type": "string",
+          "description": "Computed formatted display value"
+        }
+      },
+      "layout": {
+        "flet_component": "ft.Text",
+        "styling": {
+          "size": 14,
+          "color": "ft.Colors.BLUE_GREY_600"
+        }
+      }
+    }
+  },
+  "validation_rules": {
+    "phone_input": {
+      "real_time": {
+        "description": "Validate as user types",
+        "rules": [
+          "Only allow digits 0-9",
+          "Maximum 10 characters",
+          "Show character count",
+          "Clear error on valid input"
+        ]
+      },
+      "on_submit": {
+        "description": "Final validation before save",
+        "rules": [
+          "Must be exactly 10 digits",
+          "Country code must be selected",
+          "No duplicate phone numbers"
+        ]
+      }
+    }
+  },
+  "user_experience": {
+    "accessibility": {
+      "labels": "Country code dropdown and phone input must have proper labels",
+      "errors": "Validation errors announced to screen readers",
+      "keyboard": "Full keyboard navigation support"
+    },
+    "responsive": {
+      "mobile": "Components stack vertically on narrow screens",
+      "desktop": "Country and phone input side by side"
+    },
+    "feedback": {
+      "typing": "Real-time validation feedback as user types",
+      "success": "Green checkmark when valid number entered",
+      "error": "Red error text with specific guidance"
+    }
+  }
+}

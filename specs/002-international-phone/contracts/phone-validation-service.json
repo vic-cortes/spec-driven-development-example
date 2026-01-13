@@ -1,0 +1,94 @@
+{
+  "title": "Phone Validation Service Contract",
+  "description": "Service interface for validating and formatting international phone numbers",
+  "version": "1.0.0",
+  "services": {
+    "PhoneValidationService": {
+      "description": "Validates and formats US and Mexican phone numbers",
+      "methods": {
+        "validate_phone": {
+          "description": "Validates a phone number for a specific country code",
+          "parameters": {
+            "country_code": {
+              "type": "string",
+              "enum": ["+1", "+52"],
+              "description": "Country code for validation context"
+            },
+            "phone_digits": {
+              "type": "string",
+              "pattern": "^[0-9]{10}$",
+              "description": "Exactly 10 digits"
+            }
+          },
+          "returns": {
+            "type": "object",
+            "properties": {
+              "is_valid": {
+                "type": "boolean",
+                "description": "Whether the phone number is valid"
+              },
+              "error_message": {
+                "type": "string",
+                "description": "Validation error message if invalid"
+              },
+              "normalized_phone": {
+                "type": "string",
+                "description": "Digits-only normalized format"
+              }
+            }
+          }
+        },
+        "format_phone": {
+          "description": "Formats a validated phone number for display",
+          "parameters": {
+            "country_code": {
+              "type": "string",
+              "enum": ["+1", "+52"]
+            },
+            "phone_digits": {
+              "type": "string",
+              "pattern": "^[0-9]{10}$"
+            },
+            "format_type": {
+              "type": "string",
+              "enum": ["full", "masked"],
+              "default": "full"
+            }
+          },
+          "returns": {
+            "type": "string",
+            "description": "Formatted phone number",
+            "examples": ["+1 (555) 123-4567", "+52 (551) 234-5678", "***-4567"]
+          }
+        },
+        "parse_phone_input": {
+          "description": "Parses user input to extract digits and detect potential country",
+          "parameters": {
+            "raw_input": {
+              "type": "string",
+              "description": "Raw user input with any formatting"
+            }
+          },
+          "returns": {
+            "type": "object",
+            "properties": {
+              "digits": {
+                "type": "string",
+                "description": "Extracted digits"
+              },
+              "suggested_country": {
+                "type": "string",
+                "enum": ["+1", "+52", null],
+                "description": "Auto-detected country code if determinable"
+              },
+              "is_complete": {
+                "type": "boolean",
+                "description": "Whether input has exactly 10 digits"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
