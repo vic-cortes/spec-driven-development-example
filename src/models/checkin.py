@@ -34,7 +34,7 @@ class CheckIn:
     @classmethod
     def create_new(cls, patient_id: str, route_note: Optional[str] = None) -> "CheckIn":
         """Create a new check-in for the given patient."""
-        now = datetime.utcnow()
+        now = datetime.now()
         return cls(
             id=str(uuid.uuid4()),
             patient_id=patient_id,
@@ -46,7 +46,7 @@ class CheckIn:
 
     def update_timestamp(self) -> None:
         """Update the timestamp for repeated check-ins on the same day."""
-        now = datetime.utcnow()
+        now = datetime.now()
         if now.date() != self.date:
             raise ValueError("Cannot update timestamp for different date")
         self.timestamp = now

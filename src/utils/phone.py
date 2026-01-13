@@ -17,11 +17,16 @@ def normalize_phone(phone: str) -> str:
     Raises:
         ValueError: If phone is invalid or too short
     """
-    if not phone:
+    if not phone or not phone.strip():
         raise ValueError("Phone number is required")
 
-    # Remove all non-digit characters
-    digits_only = re.sub(r"[^\d]", "", phone.strip())
+    # Remove all non-digit characters, but handle extensions by stopping at first extension keyword
+    cleaned = phone.strip()
+    for ext_keyword in [" ext ", " extension ", " x "]:
+        if ext_keyword in cleaned.lower():
+            cleaned = cleaned.split(ext_keyword)[0]
+
+    digits_only = re.sub(r"[^\d]", "", cleaned)
 
     # Handle country code (assume +1 for US numbers)
     if digits_only.startswith("1") and len(digits_only) == 11:
