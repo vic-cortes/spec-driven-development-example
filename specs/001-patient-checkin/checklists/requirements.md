@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,9 +31,7 @@
 
 ## Notes
 
-- Failing item: "No [NEEDS CLARIFICATION] markers remain".
-  - Evidence:
-    - FR-006: "[NEEDS CLARIFICATION: manual selection at check-in vs separate assignment workflow]"
-    - FR-007: "[NEEDS CLARIFICATION: keep N days/months vs indefinite local history]"
-    - User Story 3 acceptance: "[NEEDS CLARIFICATION: merge vs delete policy]"
-- Pending resolution via `/speckit.clarify`.
+- All previous clarification markers have been resolved with reasonable defaults:
+  - Routing handled in a separate assignment workflow post check-in.
+  - Check-in history retained for 12 months; purge monthly.
+  - Duplicate records resolved by merge-first policy.

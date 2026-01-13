@@ -48,7 +48,7 @@ Staff can edit a patient's phone or basic details when an error is detected, ens
 **Acceptance Scenarios**:
 
 1. **Given** a patient's phone is incorrect, **When** staff updates the phone, **Then** future check-ins use the new phone successfully.
-2. **Given** a duplicate minimal record is detected, **When** staff merges or deletes the duplicate [NEEDS CLARIFICATION: merge vs delete policy], **Then** check-ins reference a single correct patient record.
+2. **Given** a duplicate minimal record is detected, **When** staff merges the duplicate into the primary record (deletion only allowed when no linked history), **Then** check-ins reference a single correct patient record.
 
 ---
 
@@ -56,8 +56,8 @@ Staff can edit a patient's phone or basic details when an error is detected, ens
 
 - Phone number entered with formatting (spaces, dashes) should be normalized before search.
 - Invalid or too-short phone numbers must be rejected with a clear message.
-- Multiple patients sharing a phone (family) must be disambiguated [NEEDS CLARIFICATION: prompt selection vs enforce unique phone].
-- Repeated check-in on the same day should either update the existing entry or prevent duplicates [NEEDS CLARIFICATION: allow multiple entries vs single per day].
+- Multiple patients sharing a phone (family) must be disambiguated by prompting staff to select the correct patient from matching results.
+- Repeated check-in on the same day should update the existing entry's timestamp rather than create duplicates (single entry per patient per day).
 
 ## Requirements *(mandatory)*
 
@@ -68,15 +68,15 @@ Staff can edit a patient's phone or basic details when an error is detected, ens
 - **FR-003**: System MUST provide a minimal patient creation flow (first_name, last_name, phone) when no match is found.
 - **FR-004**: System MUST provide a "Today's arrivals" view listing all check-ins for the current day.
 - **FR-005**: System MUST operate entirely on the clinic's local machine and avoid network access for patient data.
-- **FR-006**: System MUST determine how a patient is routed to a doctor/specialty after check-in [NEEDS CLARIFICATION: manual selection at check-in vs separate assignment workflow].
-- **FR-007**: System MUST define the retention period for check-in history [NEEDS CLARIFICATION: keep N days/months vs indefinite local history].
+- **FR-006**: System MUST keep check-in minimal and route patients via a separate assignment workflow performed by assistants/doctors after check-in.
+- **FR-007**: System MUST retain check-in history for 12 months and purge older entries monthly.
 - **FR-008**: System MUST prevent logs from containing PII (no full phone/name in logs; mask where necessary).
 - **FR-009**: System MUST support loading mock data to demonstrate functionality without real patient data.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Patient**: Represents an individual receiving care; key attributes include name, phone, optional basic demographics. Phone used for lookup; uniqueness policy is TBD.
-- **CheckIn**: Represents a single arrival event; attributes include patient reference, check-in timestamp, day/date, optional status/note for routing.
+- **Patient**: Represents an individual receiving care; key attributes include name, phone, optional basic demographics. Phone used for lookup; not guaranteed unique; disambiguation via selection when multiple matches.
+- **CheckIn**: Represents a single arrival event; attributes include patient reference, check-in timestamp, day/date, optional status/note for routing. Only one check-in entry per patient per day; repeated arrivals update the timestamp.
 
 ### Assumptions
 
