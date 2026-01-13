@@ -1,6 +1,8 @@
-def main():
-    print("Hello from spec-drive-development-example!")
+"""Main entry point for the Dental Patient Check-In application."""
 
+from src.ui.app import main
 
 if __name__ == "__main__":
-    main()
+    import flet as ft
+
+    ft.run(main)
