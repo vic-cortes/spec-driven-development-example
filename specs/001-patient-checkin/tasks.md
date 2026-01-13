@@ -60,18 +60,18 @@ description: "Task list for Patient Check-In (Phone)"
 
 ### Tests for User Story 1 (write FIRST)
 
-- [ ] T011 [P] [US1] Unit test: phone normalization in `tests/unit/test_phone.py`
-- [ ] T012 [P] [US1] Unit test: patient lookup by phone in `tests/unit/test_patient_lookup.py`
-- [ ] T013 [P] [US1] Integration test: check-in flow in `tests/integration/test_checkin_flow.py`
+- [x] T011 [P] [US1] Unit test: phone normalization in `tests/unit/test_phone.py`
+- [x] T012 [P] [US1] Unit test: patient lookup by phone in `tests/unit/test_patient_lookup.py`
+- [x] T013 [P] [US1] Integration test: check-in flow in `tests/integration/test_checkin_flow.py`
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement `PatientService` (lookup/create minimal) in `src/services/patient_service.py`
-- [ ] T015 [P] [US1] Implement `CheckInService` (single-per-day policy) in `src/services/checkin_service.py`
-- [ ] T016 [US1] Implement Flet Check-In screen in `src/ui/checkin_view.py`
-- [ ] T017 [US1] Wire Flet app shell and navigation in `src/ui/app.py`
-- [ ] T018 [US1] Ensure masked phone logging during check-in in `src/services/logger.py`
-- [ ] T019 [US1] Seed demo patients in `src/data/mock_seed.py`
+- [x] T014 [P] [US1] Implement `PatientService` (lookup/create minimal) in `src/services/patient_service.py`
+- [x] T015 [P] [US1] Implement `CheckInService` (single-per-day policy) in `src/services/checkin_service.py`
+- [x] T016 [US1] Implement Flet Check-In screen in `src/ui/checkin_view.py`
+- [x] T017 [US1] Wire Flet app shell and navigation in `src/ui/app.py`
+- [x] T018 [US1] Ensure masked phone logging during check-in in `src/services/logger.py`
+- [x] T019 [US1] Seed demo patients in `src/data/mock_seed.py`
 
 **Checkpoint**: User Story 1 fully functional and testable independently
 
