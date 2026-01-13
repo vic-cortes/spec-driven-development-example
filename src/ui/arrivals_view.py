@@ -13,7 +13,7 @@ from src.services.patient_service import patient_service
 from src.utils.phone import format_phone_display
 
 
-class ArrivalsView(ft.Container):
+class ArrivalsView:
     """View for displaying today's patient arrivals."""
 
     def __init__(self, on_refresh: Optional[callable] = None):
@@ -50,20 +50,28 @@ class ArrivalsView(ft.Container):
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=10,
             ),
-            alignment=ft.alignment.center,
+            alignment=ft.Alignment(0, 0),  # center alignment
             expand=True,
             visible=False,
         )
 
-        # Build the UI
-        content = self._build_content()
-        super().__init__(
-            content=content,
+        # Build the main content container
+        self.container = ft.Container(
+            content=self._build_content(),
             padding=ft.Padding(20, 20, 20, 20),
             expand=True,
         )
 
-        # Load initial data
+    def build(self) -> ft.Container:
+        """Return the main container for this view."""
+        return self.container
+
+    def set_page(self, page):
+        """Set the page reference for updates."""
+        self.page = page
+
+    def did_mount(self):
+        """Called when the view is mounted to the page."""
         self._load_arrivals()
 
     def _build_content(self) -> ft.Column:
@@ -77,7 +85,7 @@ class ArrivalsView(ft.Container):
                             "Today's Arrivals",
                             size=24,
                             weight=ft.FontWeight.BOLD,
-                            color=ft.Colors.PRIMARY,
+                            color=ft.Colors.BLUE,
                         ),
                         self.refresh_button,
                     ],
@@ -131,7 +139,11 @@ class ArrivalsView(ft.Container):
             self.status_text.color = ft.Colors.ERROR
             self._show_empty_state()
 
-        self.update()
+        try:
+            # Don't try to update individual controls - let page handle updates
+            pass
+        except Exception as e:
+            logger.error(f"Error updating arrivals view: {str(e)}")
 
     def _show_empty_state(self):
         """Show the empty state view."""
@@ -150,90 +162,32 @@ class ArrivalsView(ft.Container):
     def _create_arrival_card(self, arrival: CheckIn) -> ft.Container:
         """Create a card widget for a single arrival."""
         try:
+            logger.info(f"Creating arrival card for arrival ID: {arrival.id}")
+
             # Get patient details
             patient = patient_service.get_patient(arrival.patient_id)
             if not patient:
                 logger.error(f"Patient not found for arrival: {arrival.patient_id}")
                 return self._create_error_card(arrival)
 
-            # Format time
-            time_str = arrival.timestamp.strftime("%I:%M %p")
+            logger.info("Patient found, creating simple card...")
 
-            # Mask phone for display
-            masked_data = mask_pii_data({"phone": patient.phone})
-            phone_display = format_phone_display(masked_data["phone"])
-
-            # Create patient name
-            patient_name = f"{patient.first_name} {patient.last_name}"
+            # Create a very simple card to test
+            simple_text = f"{patient.first_name} {patient.last_name} - {arrival.timestamp.strftime('%I:%M %p')}"
 
             return ft.Container(
-                content=ft.ResponsiveRow(
-                    [
-                        # Time column
-                        ft.Container(
-                            content=ft.Column(
-                                [
-                                    ft.Text(
-                                        time_str,
-                                        size=16,
-                                        weight=ft.FontWeight.BOLD,
-                                        color=ft.Colors.PRIMARY,
-                                    ),
-                                    ft.Text(
-                                        "Arrived",
-                                        size=12,
-                                        color=ft.Colors.GREEN,
-                                        weight=ft.FontWeight.W500,
-                                    ),
-                                ],
-                                spacing=2,
-                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                            ),
-                            col={"sm": 2, "md": 2, "lg": 2},
-                            alignment=ft.alignment.center,
-                        ),
-                        # Patient info column
-                        ft.Container(
-                            content=ft.Column(
-                                [
-                                    ft.Text(
-                                        patient_name,
-                                        size=16,
-                                        weight=ft.FontWeight.W500,
-                                        color=ft.Colors.ON_SURFACE,
-                                    ),
-                                    ft.Text(
-                                        phone_display,
-                                        size=14,
-                                        color=ft.Colors.ON_SURFACE_VARIANT,
-                                    ),
-                                ],
-                                spacing=2,
-                            ),
-                            col={"sm": 6, "md": 6, "lg": 6},
-                        ),
-                        # Route/Notes column
-                        ft.Container(
-                            content=ft.Text(
-                                arrival.route_note or "No notes",
-                                size=14,
-                                color=ft.Colors.ON_SURFACE_VARIANT,
-                                italic=not arrival.route_note,
-                            ),
-                            col={"sm": 4, "md": 4, "lg": 4},
-                        ),
-                    ],
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                ),
-                bgcolor=ft.Colors.SURFACE_VARIANT,
-                border_radius=ft.border_radius.all(8),
-                padding=ft.Padding(15, 12, 15, 12),
+                content=ft.Text(simple_text),
+                bgcolor=ft.Colors.BLUE_GREY_100,
+                border_radius=8,
+                padding=10,
                 margin=ft.margin.only(bottom=5),
-                border=ft.border.all(1, ft.Colors.OUTLINE_VARIANT),
             )
 
         except Exception as e:
-            logger.error(f"Error creating arrival card: {str(e)}")
+            logger.error(f"Error creating arrival card at step: {str(e)}")
+            import traceback
+
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             return self._create_error_card(arrival)
 
     def _create_error_card(self, arrival: CheckIn) -> ft.Container:
@@ -249,7 +203,7 @@ class ArrivalsView(ft.Container):
                 ],
                 spacing=10,
             ),
-            bgcolor=ft.Colors.ERROR_CONTAINER,
+            bgcolor=ft.Colors.RED_100,
             border_radius=ft.border_radius.all(8),
             padding=ft.Padding(15, 12, 15, 12),
             margin=ft.margin.only(bottom=5),

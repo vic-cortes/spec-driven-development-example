@@ -79,6 +79,7 @@ class DentalCheckInApp:
 
         # Today's arrivals view
         self.arrivals_view = ArrivalsView(on_refresh=self.on_arrivals_refresh)
+        self.arrivals_view.set_page(self.page)
 
         # Main content area
         self.content_area = ft.Container(content=self.checkin_view, expand=True)
@@ -106,7 +107,9 @@ class DentalCheckInApp:
             logger.info("Switched to check-in view")
         elif selected_index == 1:
             # Today's arrivals view
-            self.content_area.content = self.arrivals_view
+            self.content_area.content = self.arrivals_view.build()
+            # Load/refresh data when switching to arrivals view
+            self.arrivals_view.did_mount()
             logger.info("Switched to arrivals view")
 
         # Update both navigation controls
