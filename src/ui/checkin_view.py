@@ -11,6 +11,7 @@ from src.services.patient_service import patient_service
 from src.utils.phone import format_phone_display, is_valid_phone, normalize_phone
 
 
+@ft.control
 class CheckInView(ft.Control):
     """Check-in screen for patient arrival registration."""
 
@@ -30,7 +31,7 @@ class CheckInView(ft.Control):
 
         self.search_button = ft.ElevatedButton(
             "Search Patient",
-            icon=ft.icons.SEARCH,
+            icon=ft.Icons.SEARCH,
             on_click=self._on_search_click,
             disabled=True,
         )
@@ -54,7 +55,7 @@ class CheckInView(ft.Control):
 
         self.create_button = ft.ElevatedButton(
             "Create & Check In",
-            icon=ft.icons.PERSON_ADD,
+            icon=ft.Icons.PERSON_ADD,
             on_click=self._on_create_patient_click,
             color=ft.colors.WHITE,
             bgcolor=ft.colors.GREEN,

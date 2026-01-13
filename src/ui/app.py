@@ -45,11 +45,11 @@ class DentalCheckInApp:
             min_extended_width=200,
             destinations=[
                 ft.NavigationRailDestination(
-                    icon=ft.icons.LOGIN, selected_icon=ft.icons.LOGIN, label="Check-In"
+                    icon=ft.Icons.LOGIN, selected_icon=ft.Icons.LOGIN, label="Check-In"
                 ),
                 ft.NavigationRailDestination(
-                    icon=ft.icons.LIST,
-                    selected_icon=ft.icons.LIST,
+                    icon=ft.Icons.LIST,
+                    selected_icon=ft.Icons.LIST,
                     label="Today's Arrivals",
                 ),
             ],
@@ -60,11 +60,11 @@ class DentalCheckInApp:
         # For mobile, use bottom navigation instead
         self.bottom_nav = ft.NavigationBar(
             destinations=[
-                ft.NavigationDestination(
-                    icon=ft.icons.LOGIN, selected_icon=ft.icons.LOGIN, label="Check-In"
+                ft.NavigationBarDestination(
+                    icon=ft.Icons.LOGIN, selected_icon=ft.Icons.LOGIN, label="Check-In"
                 ),
-                ft.NavigationDestination(
-                    icon=ft.icons.LIST, selected_icon=ft.icons.LIST, label="Arrivals"
+                ft.NavigationBarDestination(
+                    icon=ft.Icons.LIST, selected_icon=ft.Icons.LIST, label="Arrivals"
                 ),
             ],
             on_change=self.on_nav_change,
