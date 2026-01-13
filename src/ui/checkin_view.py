@@ -11,12 +11,10 @@ from src.services.patient_service import patient_service
 from src.utils.phone import format_phone_display, is_valid_phone, normalize_phone
 
 
-@ft.control
-class CheckInView(ft.Control):
+class CheckInView(ft.Container):
     """Check-in screen for patient arrival registration."""
 
     def __init__(self, on_checkin_complete: Optional[Callable] = None):
-        super().__init__()
         self.on_checkin_complete = on_checkin_complete
 
         # UI components
@@ -38,7 +36,7 @@ class CheckInView(ft.Control):
 
         self.result_area = ft.Column(spacing=10, visible=False)
 
-        self.status_text = ft.Text("", color=ft.colors.GREEN, visible=False)
+        self.status_text = ft.Text("", color=ft.Colors.GREEN, visible=False)
 
         # Patient selection (for shared phone numbers)
         self.patient_selection = ft.Column(spacing=5, visible=False)
@@ -46,6 +44,46 @@ class CheckInView(ft.Control):
         # New patient creation form
         self.new_patient_form = ft.Column(spacing=10, visible=False)
         self._setup_new_patient_form()
+
+        # Build the UI and call super with content
+        content = self._build_content()
+        super().__init__(
+            content=content,
+            padding=20,
+            expand=True,
+        )
+
+    def _build_content(self):
+        """Build the content for the container."""
+        title = ft.Text(
+            "Patient Check-In", size=24, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE
+        )
+
+        search_row = ft.ResponsiveRow(
+            controls=[
+                ft.Container(
+                    content=self.phone_input, col={"sm": 12, "md": 8, "lg": 8}
+                ),
+                ft.Container(
+                    content=self.search_button, col={"sm": 12, "md": 4, "lg": 4}
+                ),
+            ]
+        )
+
+        return ft.Column(
+            [
+                title,
+                ft.Divider(),
+                search_row,
+                self.result_area,
+                self.patient_selection,
+                self.new_patient_form,
+                self.status_text,
+            ],
+            spacing=15,
+            horizontal_alignment=ft.CrossAxisAlignment.START,
+            scroll=ft.ScrollMode.AUTO,
+        )
 
     def _setup_new_patient_form(self):
         """Setup the new patient creation form."""
@@ -57,45 +95,26 @@ class CheckInView(ft.Control):
             "Create & Check In",
             icon=ft.Icons.PERSON_ADD,
             on_click=self._on_create_patient_click,
-            color=ft.colors.WHITE,
-            bgcolor=ft.colors.GREEN,
+            color=ft.Colors.WHITE,
+            bgcolor=ft.Colors.GREEN,
         )
 
         self.cancel_button = ft.TextButton("Cancel", on_click=self._on_cancel_click)
 
         form_title = ft.Text("Create New Patient", weight=ft.FontWeight.BOLD)
         name_row = ft.ResponsiveRow(
-            [ft.Col(self.first_name_input, col=6), ft.Col(self.last_name_input, col=6)]
+            controls=[
+                ft.Container(
+                    content=self.first_name_input, col={"sm": 12, "md": 6, "lg": 6}
+                ),
+                ft.Container(
+                    content=self.last_name_input, col={"sm": 12, "md": 6, "lg": 6}
+                ),
+            ]
         )
         button_row = ft.Row([self.create_button, self.cancel_button], spacing=10)
 
         self.new_patient_form.controls = [form_title, name_row, button_row]
-
-    def build(self):
-        """Build the check-in view."""
-        title = ft.Text(
-            "Patient Check-In", size=24, weight=ft.FontWeight.BOLD, color=ft.colors.BLUE
-        )
-
-        search_row = ft.ResponsiveRow(
-            [ft.Col(self.phone_input, col=8), ft.Col(self.search_button, col=4)]
-        )
-
-        return ft.Container(
-            content=ft.Column(
-                [
-                    title,
-                    ft.Divider(),
-                    search_row,
-                    self.result_area,
-                    self.patient_selection,
-                    self.new_patient_form,
-                    self.status_text,
-                ],
-                spacing=15,
-            ),
-            padding=20,
-        )
 
     def _on_phone_change(self, e):
         """Handle phone input changes."""
@@ -149,7 +168,7 @@ class CheckInView(ft.Control):
 
         info_text = ft.Text(
             f"No patient found for {formatted_phone}. Create new record:",
-            color=ft.colors.ORANGE,
+            color=ft.Colors.ORANGE,
         )
 
         self.result_area.controls = [info_text]
@@ -169,7 +188,7 @@ class CheckInView(ft.Control):
 
         info_text = ft.Text(
             f"Multiple patients found. Select the correct patient:",
-            color=ft.colors.BLUE,
+            color=ft.Colors.BLUE,
         )
 
         selection_buttons = []
@@ -221,13 +240,13 @@ class CheckInView(ft.Control):
             # Show success message
             if is_new:
                 message = f"✅ Created and checked in: {patient.full_name}"
-                color = ft.colors.GREEN
+                color = ft.Colors.GREEN
             elif was_repeat:
                 message = f"🔄 Updated check-in time for: {patient.full_name}"
-                color = ft.colors.BLUE
+                color = ft.Colors.BLUE
             else:
                 message = f"✅ Checked in: {patient.full_name}"
-                color = ft.colors.GREEN
+                color = ft.Colors.GREEN
 
             self._show_status(message, color)
             self._clear_form()
@@ -245,7 +264,7 @@ class CheckInView(ft.Control):
 
     def _show_error(self, message: str):
         """Show error message."""
-        self._show_status(f"❌ {message}", ft.colors.RED)
+        self._show_status(f"❌ {message}", ft.Colors.RED)
 
     def _show_status(self, message: str, color: str):
         """Show status message."""

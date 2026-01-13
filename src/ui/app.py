@@ -84,10 +84,10 @@ class DentalCheckInApp:
                         "Today's Arrivals",
                         size=24,
                         weight=ft.FontWeight.BOLD,
-                        color=ft.colors.BLUE,
+                        color=ft.Colors.BLUE,
                     ),
                     ft.Divider(),
-                    ft.Text("Coming soon in Phase 4...", size=16, color=ft.colors.GREY),
+                    ft.Text("Coming soon in Phase 4...", size=16, color=ft.Colors.GREY),
                 ]
             ),
             padding=20,
