@@ -49,17 +49,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit tests for US phone formatting in tests/unit/test_patient_model.py
-- [ ] T010 [P] [US1] Integration test for US patient registration in tests/integration/test_patient_registration.py
+- [x] T009 [P] [US1] Unit tests for US phone formatting in tests/unit/test_patient_model.py
+- [x] T010 [P] [US1] Integration test for US patient registration in tests/integration/test_patient_registration.py
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement US phone validation logic in PhoneValidationService
-- [ ] T012 [P] [US1] Add US phone formatting to Patient.formatted_phone property
-- [ ] T013 [US1] Update PatientService.create_patient in src/services/patient_service.py to handle country_code parameter
-- [ ] T014 [US1] Enhance checkin_view.py with country code dropdown defaulting to +1
-- [ ] T015 [US1] Update patient registration form validation to require exactly 10 digits
-- [ ] T016 [US1] Update arrivals view in src/ui/arrivals_view.py to display formatted US phone numbers
+- [x] T011 [P] [US1] Implement US phone validation logic in PhoneValidationService
+- [x] T012 [P] [US1] Add US phone formatting to Patient.formatted_phone property
+- [x] T013 [US1] Update PatientService.create_patient in src/services/patient_service.py to handle country_code parameter
+- [x] T014 [US1] Enhance checkin_view.py with country code dropdown defaulting to +1
+- [x] T015 [US1] Update patient registration form validation to require exactly 10 digits
+- [x] T016 [US1] Update arrivals view in src/ui/arrivals_view.py to display formatted US phone numbers
 
 **Checkpoint**: US patients can be registered with +1 phone numbers and display correctly throughout the application
 

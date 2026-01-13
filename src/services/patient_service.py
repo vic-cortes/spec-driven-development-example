@@ -5,7 +5,11 @@ from typing import List, Optional, Tuple
 from src.models.patient import Patient
 from src.services.logger import logger, mask_pii_data
 from src.services.store import store
-from src.utils.phone import is_valid_phone, normalize_phone
+from src.utils.phone import (
+    is_valid_phone,
+    normalize_international_phone,
+    normalize_phone,
+)
 
 
 class PatientService:
@@ -79,6 +83,56 @@ class PatientService:
         }
         masked_data = mask_pii_data(patient_data)
         logger.info(f"Created minimal patient: {masked_data}")
+
+        return patient
+
+    def create_patient(
+        self, first_name: str, last_name: str, phone: str, country_code: str = "+1"
+    ) -> Patient:
+        """
+        Create a patient record with international phone number support.
+
+        Args:
+            first_name: Patient's first name
+            last_name: Patient's last name
+            phone: Phone number in any format
+            country_code: Country code ("+1" or "+52"), defaults to "+1"
+
+        Returns:
+            Created patient
+
+        Raises:
+            ValueError: If input validation fails
+        """
+        if not first_name.strip():
+            raise ValueError("First name is required")
+        if not last_name.strip():
+            raise ValueError("Last name is required")
+
+        # Normalize international phone number
+        try:
+            normalized_country, normalized_phone = normalize_international_phone(
+                phone, country_code
+            )
+        except ValueError as e:
+            raise ValueError(f"Invalid phone number: {str(e)}")
+
+        # Create patient with international support
+        patient = Patient.create_minimal(
+            first_name.strip(), last_name.strip(), normalized_phone, normalized_country
+        )
+
+        self._store.add_patient(patient)
+
+        # Log patient creation (with PII masking)
+        patient_data = {
+            "id": patient.id,
+            "name": patient.full_name,
+            "phone": patient.phone,
+            "country_code": patient.country_code,
+        }
+        masked_data = mask_pii_data(patient_data)
+        logger.info(f"Created international patient: {masked_data}")
 
         return patient
 

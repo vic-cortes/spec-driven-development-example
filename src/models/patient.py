@@ -69,7 +69,8 @@ class Patient:
 
     @property
     def masked_phone(self) -> str:
-        """Return phone with only last 4 digits visible."""
+        """Return phone with country code and only last 4 digits visible."""
         if len(self.phone) <= 4:
-            return "***" + self.phone
-        return "***" + self.phone[-4:]
+            return f"{self.country_code} ***{self.phone}"
+        # Format as +1 ***-4567 for better readability
+        return f"{self.country_code} ***-{self.phone[-4:]}"

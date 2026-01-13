@@ -8,7 +8,12 @@ from src.models.patient import Patient
 from src.services.checkin_service import checkin_service
 from src.services.logger import logger
 from src.services.patient_service import patient_service
-from src.utils.phone import format_phone_display, is_valid_phone, normalize_phone
+from src.utils.phone import (
+    format_phone_display,
+    is_valid_international_phone,
+    is_valid_phone,
+    normalize_phone,
+)
 
 
 class CheckInView(ft.Container):
@@ -91,6 +96,18 @@ class CheckInView(ft.Container):
 
         self.last_name_input = ft.TextField(label="Last Name", width=200)
 
+        # Country code dropdown with default to US (+1)
+        self.country_code_dropdown = ft.Dropdown(
+            label="Country",
+            width=150,
+            value="+1",  # Default to US
+            options=[
+                ft.dropdown.Option("+1", "+1 (US)"),
+                ft.dropdown.Option("+52", "+52 (Mexico)"),
+            ],
+            hint_text="Select country code",
+        )
+
         self.create_button = ft.ElevatedButton(
             "Create & Check In",
             icon=ft.Icons.PERSON_ADD,
@@ -112,9 +129,51 @@ class CheckInView(ft.Container):
                 ),
             ]
         )
+        # Add country code row
+        country_row = ft.ResponsiveRow(
+            controls=[
+                ft.Container(
+                    content=self.country_code_dropdown,
+                    col={"sm": 12, "md": 12, "lg": 12},
+                ),
+            ]
+        )
         button_row = ft.Row([self.create_button, self.cancel_button], spacing=10)
 
-        self.new_patient_form.controls = [form_title, name_row, button_row]
+        self.new_patient_form.controls = [form_title, name_row, country_row, button_row]
+
+    def _validate_phone_with_detailed_error(
+        self, phone_text: str, country_code: str = "+1"
+    ) -> str:
+        """
+        Validate phone number and return detailed error message if invalid.
+
+        Args:
+            phone_text: Phone number to validate
+            country_code: Country code for validation context
+
+        Returns:
+            Empty string if valid, error message if invalid
+        """
+        if not phone_text.strip():
+            return "Phone number is required"
+
+        # Try to validate with international phone support
+        if not is_valid_international_phone(phone_text, country_code):
+            # Provide more specific error messages
+            # Remove all non-digit characters to check length
+            import re
+
+            digits_only = re.sub(r"[^\d]", "", phone_text)
+
+            if len(digits_only) < 10:
+                return f"Phone number too short: {len(digits_only)} digits (need exactly 10)"
+            elif len(digits_only) > 10:
+                return f"Phone number too long: {len(digits_only)} digits (need exactly 10)"
+            else:
+                return "Invalid phone number format"
+
+        return ""  # Valid phone number
 
     def _on_phone_change(self, e):
         """Handle phone input changes."""
@@ -132,12 +191,10 @@ class CheckInView(ft.Container):
         """Handle search button click."""
         phone_text = self.phone_input.value.strip()
 
-        if not phone_text:
-            self._show_error("Please enter a phone number")
-            return
-
-        if not is_valid_phone(phone_text):
-            self._show_error("Please enter a valid phone number")
+        # Enhanced phone validation with detailed error messages
+        validation_error = self._validate_phone_with_detailed_error(phone_text)
+        if validation_error:
+            self._show_error(validation_error)
             return
 
         try:
@@ -217,15 +274,24 @@ class CheckInView(ft.Container):
         first_name = self.first_name_input.value.strip()
         last_name = self.last_name_input.value.strip()
         phone_text = self.phone_input.value.strip()
+        country_code = self.country_code_dropdown.value or "+1"  # Default to US
 
         if not first_name or not last_name:
             self._show_error("Please enter both first and last name")
             return
 
+        # Enhanced validation for phone number with selected country code
+        validation_error = self._validate_phone_with_detailed_error(
+            phone_text, country_code
+        )
+        if validation_error:
+            self._show_error(validation_error)
+            return
+
         try:
-            # Create patient and check in
-            patient = patient_service.create_minimal_patient(
-                first_name, last_name, phone_text
+            # Create patient with international phone support and check in
+            patient = patient_service.create_patient(
+                first_name, last_name, phone_text, country_code
             )
             self._check_in_patient(patient, is_new=True)
 
