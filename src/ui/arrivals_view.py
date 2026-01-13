@@ -27,7 +27,12 @@ class ArrivalsView:
             on_click=self._on_refresh_click,
         )
 
-        self.arrivals_list = ft.Column(spacing=10, expand=True)
+        self.arrivals_list = ft.Column(
+            spacing=10,
+            expand=True,
+            scroll=ft.ScrollMode.AUTO,
+            auto_scroll=True,
+        )
         self.status_text = ft.Text("", size=14, color=ft.Colors.BLUE_GREY_600)
         self.empty_state = ft.Container(
             content=ft.Column(
@@ -104,6 +109,7 @@ class ArrivalsView:
                             ft.Container(
                                 content=self.arrivals_list,
                                 expand=True,
+                                height=400,  # Set explicit height for better scroll behavior
                             ),
                             # Empty state overlay
                             self.empty_state,
