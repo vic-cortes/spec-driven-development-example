@@ -41,12 +41,12 @@ description: "Task list for Patient Check-In (Phone)"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create Patient model in `src/models/patient.py`
-- [ ] T006 [P] Create CheckIn model in `src/models/checkin.py`
-- [ ] T007 [P] Implement phone normalization utility in `src/utils/phone.py`
-- [ ] T008 Implement in-memory store for patients/check-ins in `src/services/store.py`
-- [ ] T009 Configure privacy-safe logging (mask phones) in `src/services/logger.py`
-- [ ] T010 [P] Add mock data seeding script in `src/data/mock_seed.py`
+- [x] T005 Create Patient model in `src/models/patient.py`
+- [x] T006 [P] Create CheckIn model in `src/models/checkin.py`
+- [x] T007 [P] Implement phone normalization utility in `src/utils/phone.py`
+- [x] T008 Implement in-memory store for patients/check-ins in `src/services/store.py`
+- [x] T009 Configure privacy-safe logging (mask phones) in `src/services/logger.py`
+- [x] T010 [P] Add mock data seeding script in `src/data/mock_seed.py`
 
 **Checkpoint**: Foundation ready — user story implementation can now begin in parallel
 
