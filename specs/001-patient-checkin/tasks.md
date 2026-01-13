@@ -85,14 +85,14 @@ description: "Task list for Patient Check-In (Phone)"
 
 ### Tests for User Story 2 (write FIRST)
 
-- [ ] T020 [P] [US2] Integration test: arrivals list view in `tests/integration/test_arrivals_view.py`
-- [ ] T021 [P] [US2] Unit test: list today's check-ins in `tests/unit/test_checkins_today.py`
+- [x] T020 [P] [US2] Integration test: arrivals list view in `tests/integration/test_arrivals_view.py`
+- [x] T021 [P] [US2] Unit test: list today's check-ins in `tests/unit/test_checkins_today.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement arrivals view UI in `src/ui/arrivals_view.py`
-- [ ] T023 [US2] Add service method `list_today()` in `src/services/checkin_service.py`
-- [ ] T024 [US2] Mask phone display in `src/ui/arrivals_view.py`
+- [x] T022 [P] [US2] Implement arrivals view UI in `src/ui/arrivals_view.py`
+- [x] T023 [US2] Add service method `list_today()` in `src/services/checkin_service.py`
+- [x] T024 [US2] Mask phone display in `src/ui/arrivals_view.py`
 
 **Checkpoint**: User Stories 1 and 2 work independently
 

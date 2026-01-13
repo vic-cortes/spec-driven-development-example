@@ -4,6 +4,7 @@ import flet as ft
 
 from src.data.mock_seed import seed_mock_data
 from src.services.logger import logger
+from src.ui.arrivals_view import ArrivalsView
 from src.ui.checkin_view import CheckInView
 
 
@@ -76,22 +77,8 @@ class DentalCheckInApp:
         # Check-in view
         self.checkin_view = CheckInView(on_checkin_complete=self.on_checkin_complete)
 
-        # Today's arrivals placeholder (will be implemented in Phase 4)
-        self.arrivals_view = ft.Container(
-            content=ft.Column(
-                [
-                    ft.Text(
-                        "Today's Arrivals",
-                        size=24,
-                        weight=ft.FontWeight.BOLD,
-                        color=ft.Colors.BLUE,
-                    ),
-                    ft.Divider(),
-                    ft.Text("Coming soon in Phase 4...", size=16, color=ft.Colors.GREY),
-                ]
-            ),
-            padding=20,
-        )
+        # Today's arrivals view
+        self.arrivals_view = ArrivalsView(on_refresh=self.on_arrivals_refresh)
 
         # Main content area
         self.content_area = ft.Container(content=self.checkin_view, expand=True)
@@ -131,7 +118,13 @@ class DentalCheckInApp:
     def on_checkin_complete(self, checkin, patient):
         """Handle check-in completion."""
         logger.info(f"Check-in completed for {patient.full_name}")
-        # Could trigger arrivals view refresh here in Phase 4
+        # Refresh arrivals view to show the new check-in
+        if hasattr(self.arrivals_view, "refresh_data"):
+            self.arrivals_view.refresh_data()
+
+    def on_arrivals_refresh(self):
+        """Handle arrivals view refresh requests."""
+        logger.info("Arrivals view refreshed")
 
     def handle_resize(self):
         """Handle window resize for responsive layout."""

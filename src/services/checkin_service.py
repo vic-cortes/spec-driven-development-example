@@ -95,6 +95,27 @@ class CheckInService:
         logger.info(f"Retrieved {len(arrivals)} arrivals for {target_date}")
         return arrivals
 
+    def list_today(self, target_date: Optional[date] = None) -> List[CheckIn]:
+        """
+        Get all check-ins for a specific date as a simple list.
+
+        Args:
+            target_date: Date to get check-ins for (defaults to today)
+
+        Returns:
+            List of CheckIn objects sorted by arrival time
+        """
+        if target_date is None:
+            target_date = date.today()
+
+        checkins = self._store.list_checkins_for_date(target_date)
+
+        # Sort by arrival time
+        checkins.sort(key=lambda x: x.timestamp)
+
+        logger.info(f"Retrieved {len(checkins)} check-ins for {target_date}")
+        return checkins
+
     def get_checkin_by_id(self, checkin_id: str) -> Optional[CheckIn]:
         """Get a check-in by ID."""
         return self._store.get_checkin(checkin_id)

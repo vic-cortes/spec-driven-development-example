@@ -11,6 +11,7 @@ class CheckInStatus(Enum):
     """Status of a check-in entry."""
 
     CHECKED_IN = "checked_in"
+    ARRIVED = "arrived"
 
 
 @dataclass
