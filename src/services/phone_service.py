@@ -36,13 +36,17 @@ class PhoneValidationService:
         self.supported_countries = {
             "+1": {
                 "name": "United States",
+                "code": "US",
                 "display_name": "+1 (US)",
                 "pattern": r"^[0-9]{10}$",
+                "format": "(XXX) XXX-XXXX",
             },
             "+52": {
                 "name": "Mexico",
+                "code": "MX",
                 "display_name": "+52 (Mexico)",
                 "pattern": r"^[0-9]{10}$",
+                "format": "(XXX) XXX-XXXX",
             },
         }
         logger.info(
@@ -71,6 +75,12 @@ class PhoneValidationService:
                 )
 
             # Check if phone_digits is exactly 10 digits
+            if phone_digits is None:
+                return PhoneValidationResult(
+                    is_valid=False,
+                    error_message="Phone validation failed: phone cannot be None",
+                )
+
             if not phone_digits or len(phone_digits) != 10:
                 return PhoneValidationResult(
                     is_valid=False,
@@ -106,7 +116,8 @@ class PhoneValidationService:
         except Exception as e:
             logger.error(f"Phone validation error: {str(e)}")
             return PhoneValidationResult(
-                is_valid=False, error_message=f"Phone validation failed: {str(e)}"
+                is_valid=False,
+                error_message=f"Phone number validation failed: {str(e)}",
             )
 
     def format_phone(
@@ -207,6 +218,10 @@ class PhoneValidationService:
         Returns:
             str: Digits-only phone number
         """
+        if raw_input is None:
+            return ""
+        if not isinstance(raw_input, str):
+            return ""
         return re.sub(r"[^\d]", "", raw_input)
 
 
