@@ -1,50 +1,57 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Dental Patient Registry Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Flet-First UI
+- Build a desktop app using Flet only (no web server).
+- Provide three main views: Patients, Appointments, Treatments.
+- Use simple forms with validation and clear feedback (success/error).
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Local Persistence (SQLite)
+- Store all data locally in a single SQLite database file.
+- Validate inputs before writing; handle CRUD errors gracefully.
+- Optional daily backup of the DB file to a `backups/` folder.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Test-First (Non-Negotiable)
+- Write tests before implementation for every feature.
+- Unit tests for models and services; smoke tests for critical flows.
+- Keep tests fast and deterministic.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Minimal Integration Testing
+- Cover DB read/write and service–UI boundary with a few integration tests.
+- Ensure patient creation, appointment scheduling, and treatment logging work end-to-end.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Simplicity & Privacy
+- Collect only necessary patient data; avoid storing sensitive notes when not required.
+- No network access for patient data; logs must not include PII.
+- Prefer straightforward code over abstractions until needed.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technical Baseline
+- Python: >= 3.12
+- UI: Flet >= 0.21
+- Database: SQLite (standard library `sqlite3`)
+- Testing: pytest (optional: pytest-cov)
+- Suggested layout: `models/`, `services/`, `ui/`, `data/`, `tests/`.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Minimal Data Model
+- Patient: first_name, last_name, id_number, phone, email, birth_date, address, notes
+- Appointment: patient_id, datetime, reason, status (scheduled/done/cancelled)
+- Treatment: patient_id, description, date, cost, payment_status
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
+1. Specify behavior (short spec or scenario).
+2. Write failing tests (RED).
+3. Implement the minimal code to pass (GREEN).
+4. Refactor with tests green (REFACTOR).
+5. Add/adjust UI forms and navigation in Flet.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Code Standards
+- PEP 8 style, type hints on public functions, concise docstrings.
+- Domain names in English and self-explanatory.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+- This constitution defines the minimal, non-negotiable constraints.
+- Every PR must include tests for new/changed behavior.
+- Changes to data model require migration notes and tests.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-01-12 | **Last Amended**: 2026-01-12
