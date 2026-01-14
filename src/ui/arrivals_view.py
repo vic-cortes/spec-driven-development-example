@@ -220,13 +220,11 @@ class ArrivalsView:
                             ft.Icon(
                                 ft.Icons.PHONE, size=16, color=ft.Colors.BLUE_GREY_600
                             ),
-                            ft.Tooltip(
-                                message=f"Full number: {patient.formatted_phone}",
-                                content=ft.Text(
-                                    patient.masked_phone,
-                                    size=14,
-                                    color=ft.Colors.BLUE_GREY_600,
-                                ),
+                            ft.Text(
+                                patient.masked_phone,
+                                size=14,
+                                color=ft.Colors.BLUE_GREY_600,
+                                tooltip=f"Full number: {patient.formatted_phone}",
                             ),
                         ],
                         spacing=5,

@@ -81,18 +81,18 @@ class PatientEditView:
         )
 
         # Status and error display
-        self.status_text = ft.Text("", color=ft.colors.RED)
+        self.status_text = ft.Text("", color=ft.Colors.RED)
 
         # Action buttons
         self.save_button = ft.ElevatedButton(
             "Save Changes",
-            icon=ft.icons.SAVE,
+            icon=ft.Icons.SAVE,
             on_click=self._handle_save,
-            style=ft.ButtonStyle(bgcolor=ft.colors.BLUE, color=ft.colors.WHITE),
+            style=ft.ButtonStyle(bgcolor=ft.Colors.BLUE, color=ft.Colors.WHITE),
         )
 
         self.cancel_button = ft.TextButton(
-            "Cancel", icon=ft.icons.CANCEL, on_click=self._handle_cancel
+            "Cancel", icon=ft.Icons.CANCEL, on_click=self._handle_cancel
         )
 
         # Build the view
@@ -112,7 +112,7 @@ class PatientEditView:
                 ft.Container(
                     content=ft.Row(
                         [
-                            ft.Icon(ft.icons.EDIT, size=24),
+                            ft.Icon(ft.Icons.EDIT, size=24),
                             ft.Text(
                                 f"Edit Patient: {self.patient.full_name}",
                                 style=ft.TextThemeStyle.HEADLINE_SMALL,
@@ -228,13 +228,13 @@ class PatientEditView:
     def _show_error(self, message: str):
         """Display error message."""
         self.status_text.value = message
-        self.status_text.color = ft.colors.RED
+        self.status_text.color = ft.Colors.RED
         self.status_text.update()
 
     def _show_success(self, message: str):
         """Display success message."""
         self.status_text.value = message
-        self.status_text.color = ft.colors.GREEN
+        self.status_text.color = ft.Colors.GREEN
         self.status_text.update()
 
     def _clear_status(self):
