@@ -7,7 +7,7 @@ import flet as ft
 from src.models.patient import Patient
 from src.services.logger import logger
 from src.services.patient_service import patient_service
-from src.utils.phone import is_valid_phone, normalize_phone
+from src.utils.phone import is_valid_international_phone, normalize_international_phone
 
 
 class PatientEditView:
@@ -46,10 +46,10 @@ class PatientEditView:
 
         self.phone_field = ft.TextField(
             label="Phone Number",
-            value=self._format_phone_display(patient.phone),
+            value=patient.formatted_phone,  # Use international formatted phone
             max_length=20,
             expand=True,
-            hint_text="(555) 123-4567",
+            hint_text="(555) 123-4567 or +52 (551) 234-5678",
         )
 
         self.email_field = ft.TextField(
@@ -97,12 +97,6 @@ class PatientEditView:
 
         # Build the view
         self.view = self._build_view()
-
-    def _format_phone_display(self, phone: str) -> str:
-        """Format phone number for display in edit field."""
-        if len(phone) == 10:
-            return f"({phone[:3]}) {phone[3:6]}-{phone[6:]}"
-        return phone
 
     def _build_view(self) -> ft.Column:
         """Build the main edit view."""
@@ -185,21 +179,51 @@ class PatientEditView:
                 self.phone_field.focus()
                 return
 
-            # Validate phone format
-            if not is_valid_phone(phone):
-                self._show_error("Invalid phone number format")
-                self.phone_field.focus()
-                return
+            # Validate phone format - attempt to determine country code from current patient or input
+            original_country_code = getattr(self.patient, "country_code", "+1")
 
-            # Normalize phone
-            normalized_phone = normalize_phone(phone)
+            # Try to validate with original country code first
+            if is_valid_international_phone(phone, original_country_code):
+                country_code, normalized_phone = normalize_international_phone(
+                    phone, original_country_code
+                )
+            # If that fails, try to detect from the phone input itself
+            elif phone.startswith(("+1", "+52")):
+                # Extract country code from input
+                if phone.startswith("+1"):
+                    country_code, normalized_phone = normalize_international_phone(
+                        phone, "+1"
+                    )
+                elif phone.startswith("+52"):
+                    country_code, normalized_phone = normalize_international_phone(
+                        phone, "+52"
+                    )
+                else:
+                    self._show_error(
+                        "Invalid phone number format. Use US format like (555) 123-4567 or Mexican format like +52 551 234 5678"
+                    )
+                    self.phone_field.focus()
+                    return
+            else:
+                # Default to original country code if no country code in input
+                if is_valid_international_phone(phone, original_country_code):
+                    country_code, normalized_phone = normalize_international_phone(
+                        phone, original_country_code
+                    )
+                else:
+                    self._show_error(
+                        "Invalid phone number format. Use US format like (555) 123-4567 or Mexican format like +52 551 234 5678"
+                    )
+                    self.phone_field.focus()
+                    return
 
-            # Create updated patient object
+            # Create updated patient object with country code support
             updated_patient = Patient(
                 id=self.patient.id,
                 first_name=first_name,
                 last_name=last_name,
                 phone=normalized_phone,
+                country_code=country_code,  # Include country code
                 email=self.email_field.value.strip() or None,
                 address=self.address_field.value.strip() or None,
                 notes=self.notes_field.value.strip() or None,

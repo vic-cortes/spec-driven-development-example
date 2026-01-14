@@ -160,18 +160,32 @@ class CheckInView(ft.Container):
 
         # Try to validate with international phone support
         if not is_valid_international_phone(phone_text, country_code):
-            # Provide more specific error messages
+            # Provide more specific error messages based on country
             # Remove all non-digit characters to check length
             import re
 
             digits_only = re.sub(r"[^\d]", "", phone_text)
+            country_name = (
+                "US"
+                if country_code == "+1"
+                else "Mexican" if country_code == "+52" else "phone"
+            )
 
             if len(digits_only) < 10:
-                return f"Phone number too short: {len(digits_only)} digits (need exactly 10)"
+                if country_code == "+52":
+                    return f"Mexican phone number too short: {len(digits_only)} digits (need exactly 10 digits after +52)"
+                else:
+                    return f"US phone number too short: {len(digits_only)} digits (need exactly 10 digits after +1)"
             elif len(digits_only) > 10:
-                return f"Phone number too long: {len(digits_only)} digits (need exactly 10)"
+                if country_code == "+52":
+                    return f"Mexican phone number too long: {len(digits_only)} digits (need exactly 10 digits after +52)"
+                else:
+                    return f"US phone number too long: {len(digits_only)} digits (need exactly 10 digits after +1)"
             else:
-                return "Invalid phone number format"
+                if country_code == "+52":
+                    return "Invalid Mexican phone number format. Example: 551 234 5678"
+                else:
+                    return "Invalid US phone number format. Example: (555) 123-4567"
 
         return ""  # Valid phone number
 

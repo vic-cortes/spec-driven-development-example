@@ -73,17 +73,17 @@
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Unit tests for Mexican phone formatting in tests/unit/test_phone_validation.py
-- [ ] T018 [P] [US2] Integration test for Mexican patient registration in tests/integration/test_patient_registration.py
+- [x] T017 [P] [US2] Unit tests for Mexican phone formatting in tests/unit/test_phone_validation.py
+- [x] T018 [P] [US2] Integration test for Mexican patient registration in tests/integration/test_patient_registration.py
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement Mexican phone validation logic in PhoneValidationService  
-- [ ] T020 [P] [US2] Add Mexican phone formatting support to Patient.formatted_phone property
-- [ ] T021 [US2] Add +52 option to country code dropdown in checkin_view.py
-- [ ] T022 [US2] Update validation error messages for Mexican phone format requirements
-- [ ] T023 [US2] Test Mexican phone display formatting in arrivals view and patient edit view
-- [ ] T024 [US2] Create integration test for Mexican patient workflow in tests/integration/test_phone_display.py
+- [x] T019 [P] [US2] Implement Mexican phone validation logic in PhoneValidationService  
+- [x] T020 [P] [US2] Add Mexican phone formatting support to Patient.formatted_phone property
+- [x] T021 [US2] Add +52 option to country code dropdown in checkin_view.py
+- [x] T022 [US2] Update validation error messages for Mexican phone format requirements
+- [x] T023 [US2] Test Mexican phone display formatting in arrivals view and patient edit view
+- [x] T024 [US2] Create integration test for Mexican patient workflow in tests/integration/test_phone_display.py
 
 **Checkpoint**: Mexican patients can be registered with +52 phone numbers with proper validation and display formatting
 

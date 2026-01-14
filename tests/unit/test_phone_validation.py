@@ -137,28 +137,52 @@ class TestPhoneValidationService:
         result = phone_service.validate_phone("+1", "12345")
 
         assert result.is_valid is False
-        assert "must be exactly 10 digits" in result.error_message
+        assert "US phone number must be exactly 10 digits" in result.error_message
 
     def test_validate_invalid_phone_length_long(self):
         """Test validation with too many digits."""
         result = phone_service.validate_phone("+1", "123456789012")
 
         assert result.is_valid is False
-        assert "must be exactly 10 digits" in result.error_message
+        assert "US phone number must be exactly 10 digits" in result.error_message
 
     def test_validate_invalid_phone_non_digits(self):
         """Test validation with non-digit characters."""
         result = phone_service.validate_phone("+1", "555abc4567")
 
         assert result.is_valid is False
-        assert "must contain only digits" in result.error_message
+        assert "US phone number must contain only digits" in result.error_message
+
+    def test_validate_invalid_mexican_phone_length_short(self):
+        """Test validation of too short Mexican phone number."""
+        result = phone_service.validate_phone("+52", "55123456")
+
+        assert result.is_valid is False
+        assert "Mexican phone number must be exactly 10 digits" in result.error_message
+        assert "Example: 551 234 5678" in result.error_message
+
+    def test_validate_invalid_mexican_phone_length_long(self):
+        """Test validation of too long Mexican phone number."""
+        result = phone_service.validate_phone("+52", "551234567890")
+
+        assert result.is_valid is False
+        assert "Mexican phone number must be exactly 10 digits" in result.error_message
+        assert "Example: 551 234 5678" in result.error_message
+
+    def test_validate_invalid_mexican_phone_non_digits(self):
+        """Test validation of Mexican phone number with non-digits."""
+        result = phone_service.validate_phone("+52", "551abc5678")
+
+        assert result.is_valid is False
+        assert "Mexican phone number must contain only digits" in result.error_message
+        assert "Example: 551 234 5678" in result.error_message
 
     def test_validate_empty_phone(self):
         """Test validation with empty phone number."""
         result = phone_service.validate_phone("+1", "")
 
         assert result.is_valid is False
-        assert "must be exactly 10 digits" in result.error_message
+        assert "US phone number must be exactly 10 digits" in result.error_message
 
     def test_format_phone_full_us(self):
         """Test full formatting of US phone number."""
