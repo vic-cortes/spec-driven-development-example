@@ -42,9 +42,7 @@ class TestArrivalsView:
                 last_name="Garcia",
                 phone="5551234567",
                 email="maria.garcia@email.com",
-                date_of_birth=date(1985, 3, 15),
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
+                birth_date=date(1985, 3, 15),
             ),
             Patient(
                 id="patient-002",
@@ -52,9 +50,7 @@ class TestArrivalsView:
                 last_name="Smith",
                 phone="5559876543",
                 email="john.smith@email.com",
-                date_of_birth=date(1978, 8, 22),
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
+                birth_date=date(1978, 8, 22),
             ),
             Patient(
                 id="patient-003",
@@ -62,9 +58,7 @@ class TestArrivalsView:
                 last_name="Johnson",
                 phone="5555551234",
                 email="sarah.j@email.com",
-                date_of_birth=date(1992, 12, 3),
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
+                birth_date=date(1992, 12, 3),
             ),
         ]
 

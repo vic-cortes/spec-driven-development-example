@@ -149,7 +149,7 @@ class TestEditPatientFlow:
             patient_service.update_patient(invalid_patient)
 
         # Test invalid phone
-        with pytest.raises(ValueError, match="Phone must contain only digits"):
+        with pytest.raises(ValueError, match="Phone must be exactly 10 digits"):
             invalid_patient = Patient(
                 id=existing_patient.id,
                 first_name="Jane",

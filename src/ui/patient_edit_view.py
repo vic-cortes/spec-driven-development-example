@@ -7,7 +7,8 @@ import flet as ft
 from src.models.patient import Patient
 from src.services.logger import logger
 from src.services.patient_service import patient_service
-from src.utils.phone import is_valid_international_phone, normalize_international_phone
+from src.services.phone_service import phone_service
+from src.ui.components.international_phone_input import InternationalPhoneInput
 
 
 class PatientEditView:
@@ -44,12 +45,15 @@ class PatientEditView:
             label="Last Name", value=patient.last_name, max_length=50, expand=True
         )
 
-        self.phone_field = ft.TextField(
+        # Use new InternationalPhoneInput component
+        self.phone_field = InternationalPhoneInput(
             label="Phone Number",
-            value=patient.formatted_phone,  # Use international formatted phone
-            max_length=20,
-            expand=True,
-            hint_text="(555) 123-4567 or +52 (551) 234-5678",
+            hint_text="Enter 10 digits",
+            value=patient.phone,  # Use raw phone digits
+            country_code=getattr(
+                patient, "country_code", "+1"
+            ),  # Use patient's country code
+            on_validation=self._handle_phone_validation,
         )
 
         self.email_field = ft.TextField(
@@ -97,6 +101,12 @@ class PatientEditView:
 
         # Build the view
         self.view = self._build_view()
+
+    def _handle_phone_validation(self, validation_result):
+        """Handle phone validation results from the phone component."""
+        # The phone component handles its own validation display
+        # This is for any additional handling needed at the form level
+        pass
 
     def _build_view(self) -> ft.Column:
         """Build the main edit view."""
@@ -155,14 +165,13 @@ class PatientEditView:
         )
 
     def _handle_save(self, e):
-        """Handle save button click."""
+        """Handle save button click with enhanced validation."""
         try:
             self._clear_status()
 
             # Validate required fields
             first_name = self.first_name_field.value.strip()
             last_name = self.last_name_field.value.strip()
-            phone = self.phone_field.value.strip()
 
             if not first_name:
                 self._show_error("First name is required")
@@ -174,56 +183,31 @@ class PatientEditView:
                 self.last_name_field.focus()
                 return
 
-            if not phone:
+            # Validate phone using the new component
+            if not self.phone_field.is_valid:
+                if self.phone_field.error_message:
+                    self._show_error(f"Phone: {self.phone_field.error_message}")
+                else:
+                    self._show_error("Please enter a valid phone number")
+                self.phone_field.focus()
+                return
+
+            # Get validated phone data from component
+            country_code = self.phone_field.country_code
+            normalized_phone = self.phone_field.value
+
+            if not normalized_phone:
                 self._show_error("Phone number is required")
                 self.phone_field.focus()
                 return
 
-            # Validate phone format - attempt to determine country code from current patient or input
-            original_country_code = getattr(self.patient, "country_code", "+1")
-
-            # Try to validate with original country code first
-            if is_valid_international_phone(phone, original_country_code):
-                country_code, normalized_phone = normalize_international_phone(
-                    phone, original_country_code
-                )
-            # If that fails, try to detect from the phone input itself
-            elif phone.startswith(("+1", "+52")):
-                # Extract country code from input
-                if phone.startswith("+1"):
-                    country_code, normalized_phone = normalize_international_phone(
-                        phone, "+1"
-                    )
-                elif phone.startswith("+52"):
-                    country_code, normalized_phone = normalize_international_phone(
-                        phone, "+52"
-                    )
-                else:
-                    self._show_error(
-                        "Invalid phone number format. Use US format like (555) 123-4567 or Mexican format like +52 551 234 5678"
-                    )
-                    self.phone_field.focus()
-                    return
-            else:
-                # Default to original country code if no country code in input
-                if is_valid_international_phone(phone, original_country_code):
-                    country_code, normalized_phone = normalize_international_phone(
-                        phone, original_country_code
-                    )
-                else:
-                    self._show_error(
-                        "Invalid phone number format. Use US format like (555) 123-4567 or Mexican format like +52 551 234 5678"
-                    )
-                    self.phone_field.focus()
-                    return
-
-            # Create updated patient object with country code support
+            # Create updated patient object
             updated_patient = Patient(
                 id=self.patient.id,
                 first_name=first_name,
                 last_name=last_name,
                 phone=normalized_phone,
-                country_code=country_code,  # Include country code
+                country_code=country_code,
                 email=self.email_field.value.strip() or None,
                 address=self.address_field.value.strip() or None,
                 notes=self.notes_field.value.strip() or None,

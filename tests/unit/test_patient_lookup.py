@@ -123,18 +123,19 @@ class TestPatientLookup:
             id="test-001", first_name="Test", last_name="User", phone="5551234567"
         )
 
-        assert patient.masked_phone == "***4567"
+        assert patient.masked_phone == "+1 ***-4567"
 
     def test_patient_masked_phone_short(self):
         """Test phone masking for short numbers."""
+        # Use a valid 10-digit phone but test masking behavior
         patient = Patient(
             id="test-001",
             first_name="Test",
             last_name="User",
-            phone="12345678",  # 8 digits
+            phone="1234567890",  # Valid 10 digits
         )
 
-        assert patient.masked_phone == "***5678"
+        assert patient.masked_phone == "+1 ***-7890"
 
     def test_patient_full_name(self):
         """Test full name property."""

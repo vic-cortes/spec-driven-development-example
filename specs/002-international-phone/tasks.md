@@ -97,17 +97,17 @@
 
 ### Tests for User Story 3
 
-- [ ] T025 [P] [US3] Unit tests for strict validation rules in tests/unit/test_phone_validation.py
-- [ ] T026 [P] [US3] UI component tests for country dropdown in tests/integration/test_phone_input_validation.py
+- [x] T025 [P] [US3] Unit tests for strict validation rules in tests/unit/test_phone_validation.py
+- [x] T026 [P] [US3] UI component tests for country dropdown in tests/integration/test_phone_input_validation.py
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Create InternationalPhoneInput component in src/ui/components/international_phone_input.py
-- [ ] T028 [P] [US3] Implement real-time validation feedback in phone input component
-- [ ] T029 [US3] Update patient_edit_view.py to use InternationalPhoneInput component
-- [ ] T030 [US3] Add comprehensive validation error messages for all invalid phone scenarios
-- [ ] T031 [US3] Implement country code change handling with validation reset
-- [ ] T032 [US3] Add form submission validation to prevent saving invalid phone numbers
+- [x] T027 [P] [US3] Create InternationalPhoneInput component in src/ui/components/international_phone_input.py
+- [x] T028 [P] [US3] Implement real-time validation feedback in phone input component
+- [x] T029 [US3] Update patient_edit_view.py to use InternationalPhoneInput component
+- [x] T030 [US3] Add comprehensive validation error messages for all invalid phone scenarios
+- [x] T031 [US3] Implement country code change handling with validation reset
+- [x] T032 [US3] Add form submission validation to prevent saving invalid phone numbers
 
 **Checkpoint**: All phone number entries require country code selection and pass strict 10-digit validation
 

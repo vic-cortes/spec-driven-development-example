@@ -57,7 +57,7 @@ class PhoneValidationService:
         self, country_code: str, phone_digits: str
     ) -> PhoneValidationResult:
         """
-        Validate a phone number for a specific country code.
+        Validate a phone number for a specific country code with strict validation rules.
 
         Args:
             country_code: Country code for validation context ("+1" or "+52")
@@ -67,34 +67,42 @@ class PhoneValidationService:
             PhoneValidationResult: Validation result with error details if invalid
         """
         try:
-            # Check if country code is supported
+            # STRICT VALIDATION: Check if country code is provided
+            if not country_code or country_code.strip() == "":
+                return PhoneValidationResult(
+                    is_valid=False,
+                    error_message="Country code is required. Please select +1 (US) or +52 (Mexico).",
+                )
+
+            # STRICT VALIDATION: Check if phone_digits is provided
+            if phone_digits is None or phone_digits == "" or phone_digits.strip() == "":
+                return PhoneValidationResult(
+                    is_valid=False,
+                    error_message="Phone number is required. Please enter exactly 10 digits.",
+                )
+
+            # Normalize country code (remove whitespace)
+            country_code = country_code.strip()
+
+            # STRICT VALIDATION: Check if country code format is valid
+            if not country_code.startswith("+") or len(country_code) < 2:
+                return PhoneValidationResult(
+                    is_valid=False,
+                    error_message="Invalid country code format. Please use +1 or +52.",
+                )
+
+            # STRICT VALIDATION: Check if country code is supported
             if country_code not in self.supported_countries:
                 return PhoneValidationResult(
                     is_valid=False,
-                    error_message=f"Unsupported country code: {country_code}. Supported: +1, +52",
+                    error_message=f"Unsupported country code: {country_code}. Supported codes: +1, +52",
                 )
 
-            # Check if phone_digits is exactly 10 digits
-            if phone_digits is None:
-                return PhoneValidationResult(
-                    is_valid=False,
-                    error_message="Phone validation failed: phone cannot be None",
-                )
+            # Normalize phone digits (remove all non-digits for length checking)
+            original_input = phone_digits
+            phone_digits = phone_digits.strip()
 
-            if not phone_digits or len(phone_digits) != 10:
-                country_name = self.supported_countries[country_code]["name"]
-                if country_code == "+52":
-                    return PhoneValidationResult(
-                        is_valid=False,
-                        error_message=f"Mexican phone number must be exactly 10 digits (currently {len(phone_digits)} digits). Example: 551 234 5678",
-                    )
-                else:
-                    return PhoneValidationResult(
-                        is_valid=False,
-                        error_message=f"US phone number must be exactly 10 digits (currently {len(phone_digits)} digits). Example: (555) 123-4567",
-                    )
-
-            # Check if all characters are digits
+            # STRICT VALIDATION: Check if phone contains non-digit characters
             if not phone_digits.isdigit():
                 if country_code == "+52":
                     return PhoneValidationResult(
@@ -104,13 +112,25 @@ class PhoneValidationService:
                 else:
                     return PhoneValidationResult(
                         is_valid=False,
-                        error_message="US phone number must contain only digits 0-9. Example: (555) 123-4567",
+                        error_message="US phone number must contain only digits 0-9. Example: 555 123 4567",
                     )
 
-            # Validate against country pattern
+            # STRICT VALIDATION: Check if phone_digits is exactly 10 digits
+            if len(phone_digits) != 10:
+                if country_code == "+52":
+                    return PhoneValidationResult(
+                        is_valid=False,
+                        error_message=f"Mexican phone number must be exactly 10 digits (currently {len(phone_digits)} digits). Example: 551 234 5678",
+                    )
+                else:
+                    return PhoneValidationResult(
+                        is_valid=False,
+                        error_message=f"US phone number must be exactly 10 digits (currently {len(phone_digits)} digits). Example: 555 123 4567",
+                    )
+
+            # STRICT VALIDATION: Validate against country pattern
             pattern = self.supported_countries[country_code]["pattern"]
             if not re.match(pattern, phone_digits):
-                country_name = self.supported_countries[country_code]["name"]
                 if country_code == "+52":
                     return PhoneValidationResult(
                         is_valid=False,
@@ -119,7 +139,7 @@ class PhoneValidationService:
                 else:
                     return PhoneValidationResult(
                         is_valid=False,
-                        error_message=f"Invalid US phone number format. Use 10 digits after +1. Example: +1 (555) 123-4567",
+                        error_message=f"Invalid US phone number format. Use 10 digits after +1. Example: +1 555 123 4567",
                     )
 
             # Create phone number for additional validation

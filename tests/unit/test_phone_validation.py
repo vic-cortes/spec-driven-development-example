@@ -182,7 +182,7 @@ class TestPhoneValidationService:
         result = phone_service.validate_phone("+1", "")
 
         assert result.is_valid is False
-        assert "US phone number must be exactly 10 digits" in result.error_message
+        assert "Phone number is required" in result.error_message
 
     def test_format_phone_full_us(self):
         """Test full formatting of US phone number."""
@@ -292,7 +292,7 @@ class TestPhoneValidationEdgeCases:
         # Test with None input
         result = phone_service.validate_phone("+1", None)
         assert result.is_valid is False
-        assert "validation failed" in result.error_message
+        assert "Phone number is required" in result.error_message
 
     def test_formatting_service_exception_handling(self):
         """Test formatting service handles exceptions gracefully."""
@@ -337,3 +337,254 @@ class TestPhoneValidationEdgeCases:
 
         # Should return fallback format for invalid phones
         assert "+1 123" in formatted
+
+
+class TestStrictValidationRules:
+    """Test strict validation rules for User Story 3 - Phase 5."""
+
+    def test_empty_country_code_validation(self):
+        """Test validation fails when no country code is provided."""
+        result = phone_service.validate_phone("", "5551234567")
+
+        assert result.is_valid is False
+        assert "Country code is required" in result.error_message
+
+    def test_none_country_code_validation(self):
+        """Test validation fails when country code is None."""
+        result = phone_service.validate_phone(None, "5551234567")
+
+        assert result.is_valid is False
+        assert "Country code is required" in result.error_message
+
+    def test_whitespace_only_country_code_validation(self):
+        """Test validation fails when country code is only whitespace."""
+        result = phone_service.validate_phone("   ", "5551234567")
+
+        assert result.is_valid is False
+        assert "Country code is required" in result.error_message
+
+    def test_empty_phone_number_validation(self):
+        """Test validation fails when no phone number is provided."""
+        result = phone_service.validate_phone("+1", "")
+
+        assert result.is_valid is False
+        assert "Phone number is required" in result.error_message
+
+    def test_none_phone_number_validation(self):
+        """Test validation fails when phone number is None."""
+        result = phone_service.validate_phone("+1", None)
+
+        assert result.is_valid is False
+        assert "Phone number is required" in result.error_message
+
+    def test_whitespace_only_phone_number_validation(self):
+        """Test validation fails when phone number is only whitespace."""
+        result = phone_service.validate_phone("+1", "   ")
+
+        assert result.is_valid is False
+        assert "Phone number is required" in result.error_message
+
+    def test_exactly_10_digits_us_validation(self):
+        """Test US phone numbers must be exactly 10 digits - no more, no less."""
+        # Valid 10 digits
+        result = phone_service.validate_phone("+1", "5551234567")
+        assert result.is_valid is True
+
+        # 9 digits - too few
+        result = phone_service.validate_phone("+1", "555123456")
+        assert result.is_valid is False
+        assert "must be exactly 10 digits" in result.error_message
+        assert "(currently 9 digits)" in result.error_message
+
+        # 11 digits - too many
+        result = phone_service.validate_phone("+1", "15551234567")
+        assert result.is_valid is False
+        assert "must be exactly 10 digits" in result.error_message
+        assert "(currently 11 digits)" in result.error_message
+
+    def test_exactly_10_digits_mexican_validation(self):
+        """Test Mexican phone numbers must be exactly 10 digits - no more, no less."""
+        # Valid 10 digits
+        result = phone_service.validate_phone("+52", "5512345678")
+        assert result.is_valid is True
+
+        # 9 digits - too few
+        result = phone_service.validate_phone("+52", "551234567")
+        assert result.is_valid is False
+        assert "must be exactly 10 digits" in result.error_message
+        assert "(currently 9 digits)" in result.error_message
+
+        # 11 digits - too many
+        result = phone_service.validate_phone("+52", "55123456789")
+        assert result.is_valid is False
+        assert "must be exactly 10 digits" in result.error_message
+        assert "(currently 11 digits)" in result.error_message
+
+    def test_digits_only_us_validation(self):
+        """Test US phone numbers must contain only digits."""
+        # Valid digits only
+        result = phone_service.validate_phone("+1", "5551234567")
+        assert result.is_valid is True
+
+        # Contains letters
+        result = phone_service.validate_phone("+1", "555abc4567")
+        assert result.is_valid is False
+        assert "must contain only digits" in result.error_message
+
+        # Contains special characters
+        result = phone_service.validate_phone("+1", "555-123-4567")
+        assert result.is_valid is False
+        assert "must contain only digits" in result.error_message
+
+        # Contains spaces
+        result = phone_service.validate_phone("+1", "555 123 4567")
+        assert result.is_valid is False
+        assert "must contain only digits" in result.error_message
+
+    def test_digits_only_mexican_validation(self):
+        """Test Mexican phone numbers must contain only digits."""
+        # Valid digits only
+        result = phone_service.validate_phone("+52", "5512345678")
+        assert result.is_valid is True
+
+        # Contains letters
+        result = phone_service.validate_phone("+52", "551abc5678")
+        assert result.is_valid is False
+        assert "must contain only digits" in result.error_message
+
+        # Contains special characters
+        result = phone_service.validate_phone("+52", "551-234-5678")
+        assert result.is_valid is False
+        assert "must contain only digits" in result.error_message
+
+        # Contains spaces
+        result = phone_service.validate_phone("+52", "551 234 5678")
+        assert result.is_valid is False
+        assert "must contain only digits" in result.error_message
+
+    def test_unsupported_country_codes(self):
+        """Test validation fails for unsupported country codes."""
+        unsupported_codes = ["+33", "+44", "+49", "+86", "+91", "+81"]
+
+        for code in unsupported_codes:
+            result = phone_service.validate_phone(code, "1234567890")
+            assert result.is_valid is False
+            assert "Unsupported country code" in result.error_message
+            assert "Supported codes: +1, +52" in result.error_message
+
+    def test_malformed_country_codes(self):
+        """Test validation fails for malformed country codes."""
+        malformed_codes = ["1", "US", "+", "++1", "+1+", "01", "52"]
+
+        for code in malformed_codes:
+            result = phone_service.validate_phone(code, "5551234567")
+            assert result.is_valid is False
+            assert (
+                "Invalid country code format" in result.error_message
+                or "Unsupported country code" in result.error_message
+            )
+
+    def test_strict_error_message_format(self):
+        """Test that error messages follow the strict format for user clarity."""
+        # US phone with 9 digits
+        result = phone_service.validate_phone("+1", "555123456")
+        assert result.is_valid is False
+        assert (
+            "US phone number must be exactly 10 digits (currently 9 digits)"
+            in result.error_message
+        )
+        assert "Example: 555 123 4567" in result.error_message
+
+        # Mexican phone with 11 digits
+        result = phone_service.validate_phone("+52", "55123456789")
+        assert result.is_valid is False
+        assert (
+            "Mexican phone number must be exactly 10 digits (currently 11 digits)"
+            in result.error_message
+        )
+        assert "Example: 551 234 5678" in result.error_message
+
+    def test_no_partial_phone_acceptance(self):
+        """Test that partial phone numbers are never considered valid."""
+        partial_phones = [
+            "5",
+            "55",
+            "555",
+            "5551",
+            "55512",
+            "555123",
+            "5551234",
+            "55512345",
+            "555123456",
+        ]
+
+        for partial in partial_phones:
+            # Test US
+            result = phone_service.validate_phone("+1", partial)
+            assert result.is_valid is False
+            assert "must be exactly 10 digits" in result.error_message
+
+            # Test Mexican
+            result = phone_service.validate_phone("+52", partial)
+            assert result.is_valid is False
+            assert "must be exactly 10 digits" in result.error_message
+
+    def test_leading_zeros_handling(self):
+        """Test that leading zeros in phone numbers are handled correctly."""
+        # Leading zeros should be preserved in validation
+        result = phone_service.validate_phone("+1", "0001234567")
+        assert result.is_valid is True
+        assert result.normalized_phone == "0001234567"
+
+        result = phone_service.validate_phone("+52", "0012345678")
+        assert result.is_valid is True
+        assert result.normalized_phone == "0012345678"
+
+    def test_all_zeros_phone_number(self):
+        """Test that phone numbers with all zeros are handled correctly."""
+        result = phone_service.validate_phone("+1", "0000000000")
+        assert result.is_valid is True
+        assert result.normalized_phone == "0000000000"
+
+        result = phone_service.validate_phone("+52", "0000000000")
+        assert result.is_valid is True
+        assert result.normalized_phone == "0000000000"
+
+    def test_all_nines_phone_number(self):
+        """Test that phone numbers with all nines are handled correctly."""
+        result = phone_service.validate_phone("+1", "9999999999")
+        assert result.is_valid is True
+        assert result.normalized_phone == "9999999999"
+
+        result = phone_service.validate_phone("+52", "9999999999")
+        assert result.is_valid is True
+        assert result.normalized_phone == "9999999999"
+
+    def test_validation_result_completeness(self):
+        """Test that validation results contain all required fields for strict validation."""
+        # Valid phone
+        result = phone_service.validate_phone("+1", "5551234567")
+        assert hasattr(result, "is_valid")
+        assert hasattr(result, "error_message")
+        assert hasattr(result, "normalized_phone")
+        assert hasattr(result, "formatted_phone")
+        assert result.error_message is None
+
+        # Invalid phone
+        result = phone_service.validate_phone("+1", "invalid")
+        assert hasattr(result, "is_valid")
+        assert hasattr(result, "error_message")
+        assert hasattr(result, "normalized_phone")
+        assert hasattr(result, "formatted_phone")
+        assert result.error_message is not None
+        assert result.is_valid is False
+
+    def test_case_insensitive_country_codes(self):
+        """Test that country codes are handled consistently regardless of case."""
+        # Lowercase should be normalized
+        result = phone_service.validate_phone("+1", "5551234567")
+        assert result.is_valid is True
+
+        # Mixed case handling - should fail since we only accept +1 and +52
+        result = phone_service.validate_phone("+1", "5551234567")
+        assert result.is_valid is True

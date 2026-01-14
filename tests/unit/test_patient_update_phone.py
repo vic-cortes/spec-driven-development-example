@@ -70,7 +70,7 @@ class TestPatientUpdatePhone:
     def test_update_patient_phone_validation(self, patient_service, sample_patient):
         """Test that phone validation works during updates."""
         # Invalid phone should raise ValueError (from Patient model validation)
-        with pytest.raises(ValueError, match="Phone must contain only digits"):
+        with pytest.raises(ValueError, match="Phone must be exactly 10 digits"):
             updated_patient = Patient(
                 id=sample_patient.id,
                 first_name=sample_patient.first_name,
@@ -80,7 +80,7 @@ class TestPatientUpdatePhone:
             patient_service.update_patient(updated_patient)
 
         # Empty phone should raise ValueError (from Patient model validation)
-        with pytest.raises(ValueError, match="Phone must be at least 8 digits"):
+        with pytest.raises(ValueError, match="Phone must be exactly 10 digits"):
             updated_patient = Patient(
                 id=sample_patient.id,
                 first_name=sample_patient.first_name,
